@@ -4,6 +4,7 @@ import PrivateRoute from './components/PrivateRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Dashboard from './pages/Dashboard';
 
 const App = () => {
   return (
@@ -12,16 +13,9 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        {/* Protected routes — Stage 3 will replace the placeholder */}
+        {/* Protected routes */}
         <Route element={<PrivateRoute />}>
-          <Route
-            path="/dashboard"
-            element={
-              <main className="min-h-screen bg-gray-950 flex items-center justify-center">
-                <p className="text-white text-xl">Dashboard coming in Stage 3</p>
-              </main>
-            }
-          />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Route>
       </Routes>
     </AuthProvider>
