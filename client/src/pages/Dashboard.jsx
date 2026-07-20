@@ -4,10 +4,40 @@ import Sidebar from '../components/Sidebar';
 import PromptInput from '../components/PromptInput';
 import AgentCard from '../components/AgentCard';
 import HistoryDrawer from '../components/HistoryDrawer';
+import { generateBlueprint } from '../api/project';
+import { AlertCircle } from 'lucide-react';
 
 const Dashboard = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  
+  // Generation State
+  const [isLoading, setIsLoading] = useState(false);
+  const [generationError, setGenerationError] = useState('');
+  const [agents, setAgents] = useState({
+    productManager: null,
+    systemArchitect: null,
+    uiDesigner: null,
+    backendEngineer: null,
+  });
+
+  const handleGenerate = async (prompt) => {
+    setIsLoading(true);
+    setGenerationError('');
+    
+    try {
+      const response = await generateBlueprint(prompt);
+      if (response.success) {
+        setAgents(response.agents);
+      }
+    } catch (err) {
+      setGenerationError(
+        err.response?.data?.message || 'Failed to generate blueprint. Please try again.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="h-screen flex flex-col bg-gray-950 overflow-hidden text-gray-200">
@@ -32,8 +62,16 @@ const Dashboard = () => {
               </p>
             </div>
 
+            {/* Error Message Display */}
+            {generationError && (
+              <div className="w-full max-w-4xl mx-auto bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl p-4 flex items-start gap-3">
+                <AlertCircle size={20} className="shrink-0 mt-0.5" />
+                <p className="text-sm">{generationError}</p>
+              </div>
+            )}
+
             {/* Input Area */}
-            <PromptInput />
+            <PromptInput onGenerate={handleGenerate} isLoading={isLoading} />
 
             {/* Agents Grid */}
             <div className="w-full max-w-4xl mx-auto">
@@ -41,10 +79,10 @@ const Dashboard = () => {
                 Your AI Team
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <AgentCard role="Product Manager" />
-                <AgentCard role="System Architect" />
-                <AgentCard role="UI Designer" />
-                <AgentCard role="Backend Engineer" />
+                <AgentCard role="Product Manager" agentData={agents.productManager} isLoading={isLoading} />
+                <AgentCard role="System Architect" agentData={agents.systemArchitect} isLoading={isLoading} />
+                <AgentCard role="UI Designer" agentData={agents.uiDesigner} isLoading={isLoading} />
+                <AgentCard role="Backend Engineer" agentData={agents.backendEngineer} isLoading={isLoading} />
               </div>
             </div>
           </div>
