@@ -1,48 +1,33 @@
+const geminiService = require('../services/gemini.service');
+
 /**
- * Generates a mock blueprint response.
- * This establishes the permanent API contract for the AI generation flow.
- * In future stages, this will be replaced with actual Gemini SDK calls
- * while maintaining this exact return structure.
+ * Generates a blueprint using the Gemini AI service.
+ * Connects the frontend to the multi-agent AI flow while maintaining the strict JSON contract.
  */
 const generateBlueprint = async (req, res) => {
   const { prompt } = req.body;
 
   if (!prompt || typeof prompt !== 'string' || prompt.trim().length < 10) {
-    return res.status(400).json({ message: 'A prompt of at least 10 characters is required' });
+    return res.status(400).json({ success: false, message: 'A prompt of at least 10 characters is required' });
   }
 
-  // Simulate network/processing delay (e.g. 2.5 seconds)
-  await new Promise(resolve => setTimeout(resolve, 2500));
-
   try {
-    // Return the exact structure expected by the frontend
-    res.status(200).json({
-      success: true,
-      project: {
-        title: "Marketplace App",
-        prompt: prompt.trim()
-      },
-      agents: {
-        productManager: {
-          status: "completed",
-          summary: "Identified core user flows, defined MVP scope, and created user stories for the marketplace."
-        },
-        systemArchitect: {
-          status: "completed",
-          summary: "Designed microservices architecture, selected tech stack, and outlined data flow diagrams."
-        },
-        uiDesigner: {
-          status: "completed",
-          summary: "Created wireframes, established design system, and defined component hierarchy."
-        },
-        backendEngineer: {
-          status: "completed",
-          summary: "Defined database schema, designed RESTful API endpoints, and planned authentication flow."
-        }
-      }
-    });
+    const blueprintData = await geminiService.generateBlueprint(prompt.trim());
+    
+    // Ensure the success flag is present (the service returns the data structure directly, but we can enforce it here or rely on the prompt)
+    if (!blueprintData.success) {
+      blueprintData.success = true;
+    }
+
+    res.status(200).json(blueprintData);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to generate blueprint' });
+    // If the error message comes from our validation (e.g., malformed JSON), send a 400
+    if (error.message.includes('malformed') || error.message.includes('schema')) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+    
+    // Otherwise, it's a server/API error
+    res.status(500).json({ success: false, message: error.message || 'Failed to generate blueprint' });
   }
 };
 
