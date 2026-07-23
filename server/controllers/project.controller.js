@@ -1,4 +1,8 @@
 const geminiService = require('../services/gemini.service');
+const { buildProductManagerPrompt } = require('../prompts/productManagerPrompt');
+const { buildArchitectPrompt } = require('../prompts/architectPrompt');
+const { buildUIDesignerPrompt } = require('../prompts/uiDesignerPrompt');
+const { buildBackendEngineerPrompt } = require('../prompts/backendEngineerPrompt');
 
 /**
  * Generates a blueprint using the Gemini AI service.
@@ -12,21 +16,58 @@ const generateBlueprint = async (req, res) => {
   }
 
   try {
-    const blueprintData = await geminiService.generateBlueprint(prompt.trim());
-    
-    // Ensure the success flag is present (the service returns the data structure directly, but we can enforce it here or rely on the prompt)
-    if (!blueprintData.success) {
-      blueprintData.success = true;
-    }
+    const cleanPrompt = prompt.trim();
 
-    res.status(200).json(blueprintData);
-  } catch (error) {
-    // If the error message comes from our validation (e.g., malformed JSON), send a 400
-    if (error.message.includes('malformed') || error.message.includes('schema')) {
-      return res.status(400).json({ success: false, message: error.message });
-    }
+    // Launch all 4 requests simultaneously
+    const pmPromise = geminiService.generateAgentResponse(buildProductManagerPrompt(cleanPrompt))
+      .catch(err => ({ error: true, summary: "Error: Product Manager failed to generate a response." }));
     
-    // Otherwise, it's a server/API error
+    const archPromise = geminiService.generateAgentResponse(buildArchitectPrompt(cleanPrompt))
+      .catch(err => ({ error: true, summary: "Error: System Architect failed to generate a response." }));
+      
+    const uiPromise = geminiService.generateAgentResponse(buildUIDesignerPrompt(cleanPrompt))
+      .catch(err => ({ error: true, summary: "Error: UI Designer failed to generate a response." }));
+      
+    const backendPromise = geminiService.generateAgentResponse(buildBackendEngineerPrompt(cleanPrompt))
+      .catch(err => ({ error: true, summary: "Error: Backend Engineer failed to generate a response." }));
+
+    const [pmResult, archResult, uiResult, backendResult] = await Promise.all([
+      pmPromise,
+      archPromise,
+      uiPromise,
+      backendPromise
+    ]);
+
+    const title = pmResult.title || "Untitled Project";
+
+    const responseData = {
+      success: true,
+      project: {
+        title: title,
+        prompt: cleanPrompt
+      },
+      agents: {
+        productManager: {
+          status: pmResult.error ? "error" : "completed",
+          summary: pmResult.summary || "No summary provided."
+        },
+        systemArchitect: {
+          status: archResult.error ? "error" : "completed",
+          summary: archResult.summary || "No summary provided."
+        },
+        uiDesigner: {
+          status: uiResult.error ? "error" : "completed",
+          summary: uiResult.summary || "No summary provided."
+        },
+        backendEngineer: {
+          status: backendResult.error ? "error" : "completed",
+          summary: backendResult.summary || "No summary provided."
+        }
+      }
+    };
+
+    res.status(200).json(responseData);
+  } catch (error) {
     res.status(500).json({ success: false, message: error.message || 'Failed to generate blueprint' });
   }
 };

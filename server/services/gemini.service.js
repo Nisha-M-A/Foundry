@@ -1,23 +1,7 @@
 const { GoogleGenAI } = require('@google/genai');
-const { buildBlueprintPrompt } = require('../prompts/blueprintPrompt');
 
 // Delay helper for exponential backoff
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Validate required JSON fields
-const validateBlueprintJSON = (data) => {
-  if (!data || typeof data !== 'object') return false;
-  if (!data.project || !data.project.title || !data.project.prompt) return false;
-  
-  const agents = data.agents;
-  if (!agents || typeof agents !== 'object') return false;
-  if (!agents.productManager || !agents.productManager.summary) return false;
-  if (!agents.systemArchitect || !agents.systemArchitect.summary) return false;
-  if (!agents.uiDesigner || !agents.uiDesigner.summary) return false;
-  if (!agents.backendEngineer || !agents.backendEngineer.summary) return false;
-
-  return true;
-};
 
 // Clean markdown from Gemini response
 const cleanJsonResponse = (text) => {
@@ -36,9 +20,9 @@ const cleanJsonResponse = (text) => {
 };
 
 /**
- * Generates a blueprint using Gemini 2.5 Flash, with automatic retries and JSON validation.
+ * Generates an agent response using Gemini 2.5 Flash, with automatic retries and JSON validation.
  */
-const generateBlueprint = async (prompt) => {
+const generateAgentResponse = async (fullPrompt) => {
   if (!process.env.GEMINI_API_KEY) {
     throw new Error('GEMINI_API_KEY is not configured on the server.');
   }
@@ -47,7 +31,6 @@ const generateBlueprint = async (prompt) => {
     apiKey: process.env.GEMINI_API_KEY,
   });
 
-  const fullPrompt = buildBlueprintPrompt(prompt);
   const maxRetries = 3;
   const backoffDelays = [1000, 2000, 4000]; // 1s, 2s, 4s
 
@@ -73,10 +56,6 @@ const generateBlueprint = async (prompt) => {
         throw new Error('Gemini returned malformed JSON.');
       }
 
-      if (!validateBlueprintJSON(jsonData)) {
-        throw new Error('Gemini returned JSON that does not match the required schema.');
-      }
-
       // Success
       return jsonData;
 
@@ -93,11 +72,11 @@ const generateBlueprint = async (prompt) => {
 
       // If we exhausted retries or it's a non-retryable error, throw a clean error
       console.error(`[Gemini Service] Generation failed: ${error.message}`);
-      throw new Error(error.message || 'Failed to generate blueprint from AI.');
+      throw new Error(error.message || 'Failed to generate response from AI.');
     }
   }
 };
 
 module.exports = {
-  generateBlueprint,
+  generateAgentResponse,
 };
