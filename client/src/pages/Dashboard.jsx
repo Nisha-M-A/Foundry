@@ -1,16 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import PromptInput from '../components/PromptInput';
 import AgentCard from '../components/AgentCard';
 import HistoryDrawer from '../components/HistoryDrawer';
-import { generateBlueprint } from '../api/project';
+import { generateBlueprint, getProjects, deleteProject, duplicateProject } from '../api/project';
 import { AlertCircle } from 'lucide-react';
 
 const Dashboard = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   
+  // History State
+  const [projects, setProjects] = useState([]);
+  const [currentProjectId, setCurrentProjectId] = useState(localStorage.getItem('currentProjectId') || null);
+
   // Generation State
   const [isLoading, setIsLoading] = useState(false);
   const [generationError, setGenerationError] = useState('');
@@ -21,6 +25,33 @@ const Dashboard = () => {
     backendEngineer: null,
   });
 
+  useEffect(() => {
+    fetchProjects();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      const response = await getProjects();
+      if (response.success) {
+        setProjects(response.projects);
+        
+        // Restore currently opened project if available
+        const savedId = localStorage.getItem('currentProjectId');
+        if (savedId) {
+          const projectToRestore = response.projects.find(p => p._id === savedId);
+          if (projectToRestore) {
+            setAgents(projectToRestore.agentResponses);
+          } else {
+            localStorage.removeItem('currentProjectId');
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch projects', err);
+    }
+  };
+
   const handleGenerate = async (prompt) => {
     setIsLoading(true);
     setGenerationError('');
@@ -29,6 +60,20 @@ const Dashboard = () => {
       const response = await generateBlueprint(prompt);
       if (response.success) {
         setAgents(response.agents);
+        
+        // Ensure new project exists in history and is marked as current
+        if (response.project && response.project._id) {
+          const newProject = {
+            _id: response.project._id,
+            projectName: response.project.title,
+            prompt: response.project.prompt,
+            agentResponses: response.agents,
+            createdAt: response.project.createdAt || new Date().toISOString()
+          };
+          setProjects(prev => [newProject, ...prev]);
+          setCurrentProjectId(response.project._id);
+          localStorage.setItem('currentProjectId', response.project._id);
+        }
       }
     } catch (err) {
       setGenerationError(
@@ -36,6 +81,46 @@ const Dashboard = () => {
       );
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleOpenProject = (project) => {
+    setAgents(project.agentResponses);
+    setCurrentProjectId(project._id);
+    localStorage.setItem('currentProjectId', project._id);
+    setIsHistoryOpen(false);
+  };
+
+  const handleDeleteProject = async (projectId) => {
+    try {
+      await deleteProject(projectId);
+      setProjects(prev => prev.filter(p => p._id !== projectId));
+      
+      if (currentProjectId === projectId) {
+        setAgents({
+          productManager: null,
+          systemArchitect: null,
+          uiDesigner: null,
+          backendEngineer: null,
+        });
+        setCurrentProjectId(null);
+        localStorage.removeItem('currentProjectId');
+      }
+    } catch (err) {
+      console.error('Failed to delete project', err);
+    }
+  };
+
+  const handleDuplicateProject = async (projectId) => {
+    try {
+      const response = await duplicateProject(projectId);
+      if (response.success && response.project) {
+        setProjects(prev => [response.project, ...prev]);
+        // Open the duplicated project automatically
+        handleOpenProject(response.project);
+      }
+    } catch (err) {
+      console.error('Failed to duplicate project', err);
     }
   };
 
@@ -91,6 +176,11 @@ const Dashboard = () => {
         <HistoryDrawer 
           isOpen={isHistoryOpen} 
           onClose={() => setIsHistoryOpen(false)} 
+          projects={projects}
+          onOpenProject={handleOpenProject}
+          onDeleteProject={handleDeleteProject}
+          onDuplicateProject={handleDuplicateProject}
+          currentProjectId={currentProjectId}
         />
       </div>
     </div>

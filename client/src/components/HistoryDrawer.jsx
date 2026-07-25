@@ -1,6 +1,14 @@
-import { X, Search, History } from 'lucide-react';
+import { X, Search, History, Copy, Trash2, FolderOpen } from 'lucide-react';
 
-const HistoryDrawer = ({ isOpen, onClose }) => {
+const HistoryDrawer = ({ 
+  isOpen, 
+  onClose, 
+  projects = [],
+  onOpenProject,
+  onDeleteProject,
+  onDuplicateProject,
+  currentProjectId
+}) => {
   return (
     <>
       {/* Backdrop */}
@@ -38,14 +46,62 @@ const HistoryDrawer = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 flex flex-col items-center justify-center text-center">
-          <div className="w-16 h-16 rounded-full bg-gray-900 flex items-center justify-center mb-4">
-            <History size={24} className="text-gray-600" />
-          </div>
-          <p className="text-gray-300 font-medium mb-1">No history yet</p>
-          <p className="text-gray-500 text-sm max-w-[200px]">
-            Blueprints you generate will appear here.
-          </p>
+        <div className="flex-1 overflow-y-auto p-4 flex flex-col">
+          {projects.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center">
+              <div className="w-16 h-16 rounded-full bg-gray-900 flex items-center justify-center mb-4">
+                <History size={24} className="text-gray-600" />
+              </div>
+              <p className="text-gray-300 font-medium mb-1">No history yet</p>
+              <p className="text-gray-500 text-sm max-w-[200px]">
+                Blueprints you generate will appear here.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {projects.map((project) => (
+                <div 
+                  key={project._id}
+                  className={`p-3 rounded-lg border ${
+                    currentProjectId === project._id ? 'border-violet-500/50 bg-violet-500/10' : 'border-gray-800 bg-gray-900/50'
+                  } transition-colors group relative`}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-sm font-medium text-gray-200 line-clamp-1 pr-2">
+                      {project.projectName}
+                    </h3>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-3">
+                    {new Date(project.createdAt).toLocaleDateString(undefined, {
+                      month: 'short', day: 'numeric', year: 'numeric'
+                    })}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => onOpenProject(project)}
+                      className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs rounded-md transition-colors"
+                    >
+                      <FolderOpen size={14} /> Open
+                    </button>
+                    <button
+                      onClick={() => onDuplicateProject(project._id)}
+                      className="p-1.5 text-gray-500 hover:text-gray-300 hover:bg-gray-800 rounded-md transition-colors"
+                      title="Duplicate"
+                    >
+                      <Copy size={14} />
+                    </button>
+                    <button
+                      onClick={() => onDeleteProject(project._id)}
+                      className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-md transition-colors"
+                      title="Delete"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </>

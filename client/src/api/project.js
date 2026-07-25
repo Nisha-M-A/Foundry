@@ -12,3 +12,18 @@ export const generateBlueprint = async (prompt) => {
   const { data } = await api.post('/project/generate', { prompt });
   return data;
 };
+
+export const getProjects = async () => {
+  const { data } = await api.get('/project');
+  return data;
+};
+
+export const deleteProject = async (id) => {
+  const { data } = await api.delete(`/project/${id}`);
+  return data;
+};
+
+export const duplicateProject = async (id) => {
+  const { data } = await api.post(`/project/${id}/duplicate`);
+  return data;
+};

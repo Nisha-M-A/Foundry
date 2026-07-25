@@ -105,15 +105,19 @@ const AgentCard = ({ role, agentData, isLoading }) => {
         
         <AnimatePresence mode="wait">
           {isCompleted || isError ? (
-            <motion.p 
+            <motion.div 
               key="summary"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
               className={`${isError ? 'text-red-400/80' : 'text-gray-400'} text-xs mt-1 line-clamp-3 leading-relaxed`}
             >
-              {localSummary}
-            </motion.p>
+              {typeof localSummary === 'object' && localSummary !== null ? (
+                "Designs backend APIs, database, authentication, and business logic."
+              ) : (
+                localSummary
+              )}
+            </motion.div>
           ) : (
             <motion.p 
               key="status-text"

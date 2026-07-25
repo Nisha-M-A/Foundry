@@ -3,6 +3,7 @@ const { buildProductManagerPrompt } = require('../prompts/productManagerPrompt')
 const { buildArchitectPrompt } = require('../prompts/architectPrompt');
 const { buildUIDesignerPrompt } = require('../prompts/uiDesignerPrompt');
 const { buildBackendEngineerPrompt } = require('../prompts/backendEngineerPrompt');
+const Project = require('../models/Project');
 
 /**
  * Generates a blueprint using the Gemini AI service.
@@ -38,36 +39,50 @@ const generateBlueprint = async (req, res) => {
       backendPromise
     ]);
 
-    const title = pmResult.title || "Untitled Project";
+    const title = pmResult.title || cleanPrompt.slice(0, 30) + (cleanPrompt.length > 30 ? '...' : '');
+
+    const agents = {
+      productManager: {
+        status: pmResult.error ? "error" : "completed",
+        summary: pmResult.summary || "No summary provided.",
+        tasks: pmResult.tasks || []
+      },
+      systemArchitect: {
+        status: archResult.error ? "error" : "completed",
+        summary: archResult.summary || "No summary provided.",
+        tasks: archResult.tasks || []
+      },
+      uiDesigner: {
+        status: uiResult.error ? "error" : "completed",
+        summary: uiResult.summary || "No summary provided.",
+        tasks: uiResult.tasks || []
+      },
+      backendEngineer: {
+        status: backendResult.error ? "error" : "completed",
+        summary: backendResult.summary || "No summary provided.",
+        tasks: backendResult.tasks || []
+      }
+    };
+
+    // Save project automatically
+    const newProject = new Project({
+      owner: req.user.id,
+      projectName: title,
+      prompt: cleanPrompt,
+      agentResponses: agents
+    });
+    
+    await newProject.save();
 
     const responseData = {
       success: true,
       project: {
+        _id: newProject._id,
         title: title,
-        prompt: cleanPrompt
+        prompt: cleanPrompt,
+        createdAt: newProject.createdAt
       },
-      agents: {
-        productManager: {
-          status: pmResult.error ? "error" : "completed",
-          summary: pmResult.summary || "No summary provided.",
-          tasks: pmResult.tasks || []
-        },
-        systemArchitect: {
-          status: archResult.error ? "error" : "completed",
-          summary: archResult.summary || "No summary provided.",
-          tasks: archResult.tasks || []
-        },
-        uiDesigner: {
-          status: uiResult.error ? "error" : "completed",
-          summary: uiResult.summary || "No summary provided.",
-          tasks: uiResult.tasks || []
-        },
-        backendEngineer: {
-          status: backendResult.error ? "error" : "completed",
-          summary: backendResult.summary || "No summary provided.",
-          tasks: backendResult.tasks || []
-        }
-      }
+      agents: agents
     };
 
     res.status(200).json(responseData);
@@ -76,6 +91,48 @@ const generateBlueprint = async (req, res) => {
   }
 };
 
+const getProjects = async (req, res) => {
+  try {
+    const projects = await Project.find({ owner: req.user.id }).sort({ createdAt: -1 });
+    res.status(200).json({ success: true, projects });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch projects' });
+  }
+};
+
+const deleteProject = async (req, res) => {
+  try {
+    const project = await Project.findOneAndDelete({ _id: req.params.id, owner: req.user.id });
+    if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
+    res.status(200).json({ success: true, message: 'Project deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to delete project' });
+  }
+};
+
+const duplicateProject = async (req, res) => {
+  try {
+    const project = await Project.findOne({ _id: req.params.id, owner: req.user.id });
+    if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
+    
+    const newProject = new Project({
+      owner: req.user.id,
+      projectName: `${project.projectName} (Copy)`,
+      prompt: project.prompt,
+      agentResponses: project.agentResponses
+    });
+    
+    await newProject.save();
+    
+    res.status(201).json({ success: true, project: newProject });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to duplicate project' });
+  }
+};
+
 module.exports = {
-  generateBlueprint
+  generateBlueprint,
+  getProjects,
+  deleteProject,
+  duplicateProject
 };
