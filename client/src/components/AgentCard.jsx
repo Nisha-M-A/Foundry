@@ -1,5 +1,6 @@
 import { User, Cpu, PenTool, Database, Clock, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import KanbanBoard from './KanbanBoard';
 
 const icons = {
@@ -25,24 +26,30 @@ const AgentCard = ({ role, agentData, isLoading }) => {
   const [localTasks, setLocalTasks] = useState([]);
 
   useEffect(() => {
+    let timer;
     if (isLoading) {
-      setLocalStatus('thinking');
-      setLocalSummary('');
-      setLocalTasks([]);
+      const delay = delays[role] || 0;
+      timer = setTimeout(() => {
+        setLocalStatus('thinking');
+        setLocalSummary('');
+        setLocalTasks([]);
+      }, delay);
     } else if (agentData && (agentData.status === 'completed' || agentData.status === 'error')) {
       const delay = delays[role] || 0;
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setLocalStatus(agentData.status);
         setLocalSummary(agentData.summary);
         setLocalTasks(agentData.tasks || []);
       }, delay);
-
-      return () => clearTimeout(timer);
     } else {
       setLocalStatus('idle');
       setLocalSummary('');
       setLocalTasks([]);
     }
+    
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [isLoading, agentData, role]);
 
   const isCompleted = localStatus === 'completed';
@@ -95,17 +102,33 @@ const AgentCard = ({ role, agentData, isLoading }) => {
 
       <div className="mt-auto relative z-10 flex-1 flex flex-col">
         <h3 className={`font-medium text-sm transition-colors ${isCompleted ? 'text-gray-200' : 'text-gray-300'}`}>{role}</h3>
-        {isCompleted || isError ? (
-          <>
-            <p className={`${isError ? 'text-red-400/80' : 'text-gray-400'} text-xs mt-1 line-clamp-3 leading-relaxed`}>
+        
+        <AnimatePresence mode="wait">
+          {isCompleted || isError ? (
+            <motion.p 
+              key="summary"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className={`${isError ? 'text-red-400/80' : 'text-gray-400'} text-xs mt-1 line-clamp-3 leading-relaxed`}
+            >
               {localSummary}
-            </p>
-            {isCompleted && <KanbanBoard tasks={localTasks} role={role} />}
-          </>
-        ) : (
-          <p className="text-gray-600 text-xs mt-1">
-            {isThinking ? 'Analyzing prompt...' : 'Waiting for prompt...'}
-          </p>
+            </motion.p>
+          ) : (
+            <motion.p 
+              key="status-text"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-gray-600 text-xs mt-1"
+            >
+              {isThinking ? 'Analyzing prompt...' : 'Waiting for prompt...'}
+            </motion.p>
+          )}
+        </AnimatePresence>
+
+        {(isThinking || isCompleted) && !isError && (
+          <KanbanBoard status={localStatus} tasks={localTasks} role={role} />
         )}
       </div>
 

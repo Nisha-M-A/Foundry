@@ -4,49 +4,50 @@ import { Hexagon } from "lucide-react";
 
 const stages = ["planning", "working", "completed"];
 
-const KanbanBoard = ({ tasks = [], role }) => {
-  const totalTasks = Array.isArray(tasks) ? tasks.length : 0;
-
+const KanbanBoard = ({ status, tasks = [], role }) => {
   const [stage, setStage] = useState(0);
   const [count, setCount] = useState(0);
-
+  const totalTasks = tasks?.length || 0;
   useEffect(() => {
-    if (totalTasks === 0) {
+    if (status === 'thinking') {
       setStage(0);
       setCount(0);
-      return;
+      
+      const t1 = setTimeout(() => setStage(1), 800);
+      
+      // Fake counter while thinking
+      const t2 = setInterval(() => {
+        setCount(c => c + 1);
+      }, 1500);
+      
+      return () => {
+        clearTimeout(t1);
+        clearInterval(t2);
+      };
+    } else if (status === 'completed') {
+      setStage(2);
+      
+      const targetCount = totalTasks;
+      
+      setCount(c => {
+        if (c > targetCount) return targetCount;
+        return c;
+      });
+      
+      const intervalId = setInterval(() => {
+        setCount(c => {
+          if (c < targetCount) return c + 1;
+          clearInterval(intervalId);
+          return c;
+        });
+      }, 150);
+      
+      return () => clearInterval(intervalId);
+    } else {
+      setStage(0);
+      setCount(0);
     }
-
-    setStage(0);
-    setCount(0);
-
-    const timers = [];
-
-    // Move to Working
-    timers.push(
-      setTimeout(() => {
-        setStage(1);
-      }, 900)
-    );
-
-    // Animate counter
-    for (let i = 1; i <= totalTasks; i++) {
-      timers.push(
-        setTimeout(() => {
-          setCount(i);
-        }, 900 + (i * 150))
-      );
-    }
-
-    // Move to Completed
-    timers.push(
-      setTimeout(() => {
-        setStage(2);
-      }, 900 + totalTasks * 150 + 300)
-    );
-
-    return () => timers.forEach(clearTimeout);
-  }, [totalTasks]);
+  }, [status, totalTasks]);
 
   return (
     <div className="mt-4">
