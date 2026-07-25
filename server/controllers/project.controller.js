@@ -49,19 +49,23 @@ const generateBlueprint = async (req, res) => {
       agents: {
         productManager: {
           status: pmResult.error ? "error" : "completed",
-          summary: pmResult.summary || "No summary provided."
+          summary: pmResult.summary || "No summary provided.",
+          tasks: pmResult.tasks || []
         },
         systemArchitect: {
           status: archResult.error ? "error" : "completed",
-          summary: archResult.summary || "No summary provided."
+          summary: archResult.summary || "No summary provided.",
+          tasks: archResult.tasks || []
         },
         uiDesigner: {
           status: uiResult.error ? "error" : "completed",
-          summary: uiResult.summary || "No summary provided."
+          summary: uiResult.summary || "No summary provided.",
+          tasks: uiResult.tasks || []
         },
         backendEngineer: {
           status: backendResult.error ? "error" : "completed",
-          summary: backendResult.summary || "No summary provided."
+          summary: backendResult.summary || "No summary provided.",
+          tasks: backendResult.tasks || []
         }
       }
     };

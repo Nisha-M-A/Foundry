@@ -1,5 +1,6 @@
 import { User, Cpu, PenTool, Database, Clock, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import KanbanBoard from './KanbanBoard';
 
 const icons = {
   'Product Manager': User,
@@ -17,26 +18,30 @@ const delays = {
 
 const AgentCard = ({ role, agentData, isLoading }) => {
   const Icon = icons[role] || User;
-  
+
   // Local states for stagger effect
   const [localStatus, setLocalStatus] = useState('idle'); // idle, thinking, completed, error
   const [localSummary, setLocalSummary] = useState('');
+  const [localTasks, setLocalTasks] = useState([]);
 
   useEffect(() => {
     if (isLoading) {
       setLocalStatus('thinking');
       setLocalSummary('');
+      setLocalTasks([]);
     } else if (agentData && (agentData.status === 'completed' || agentData.status === 'error')) {
       const delay = delays[role] || 0;
       const timer = setTimeout(() => {
         setLocalStatus(agentData.status);
         setLocalSummary(agentData.summary);
+        setLocalTasks(agentData.tasks || []);
       }, delay);
-      
+
       return () => clearTimeout(timer);
     } else {
       setLocalStatus('idle');
       setLocalSummary('');
+      setLocalTasks([]);
     }
   }, [isLoading, agentData, role]);
 
@@ -80,20 +85,23 @@ const AgentCard = ({ role, agentData, isLoading }) => {
   const iconColorClass = isCompleted ? 'text-gray-300' : (isError ? 'text-red-400' : 'text-gray-500');
 
   return (
-    <div className={`bg-gray-900 border ${borderClass} rounded-2xl p-5 flex flex-col transition-all duration-300 relative overflow-hidden group h-40`}>
+    <div className={`bg-gray-900 border ${borderClass} rounded-2xl p-5 flex flex-col transition-all duration-300 relative overflow-hidden group min-h-[24rem]`}>
       <div className="flex items-start justify-between mb-4 relative z-10">
         <div className={`w-10 h-10 rounded-xl bg-gray-950 border ${iconBorderClass} flex items-center justify-center transition-colors`}>
           <Icon size={20} className={iconColorClass} />
         </div>
         {statusUI}
       </div>
-      
-      <div className="mt-auto relative z-10">
+
+      <div className="mt-auto relative z-10 flex-1 flex flex-col">
         <h3 className={`font-medium text-sm transition-colors ${isCompleted ? 'text-gray-200' : 'text-gray-300'}`}>{role}</h3>
         {isCompleted || isError ? (
-          <p className={`${isError ? 'text-red-400/80' : 'text-gray-400'} text-xs mt-1 line-clamp-2 leading-relaxed`}>
-            {localSummary}
-          </p>
+          <>
+            <p className={`${isError ? 'text-red-400/80' : 'text-gray-400'} text-xs mt-1 line-clamp-3 leading-relaxed`}>
+              {localSummary}
+            </p>
+            {isCompleted && <KanbanBoard tasks={localTasks} role={role} />}
+          </>
         ) : (
           <p className="text-gray-600 text-xs mt-1">
             {isThinking ? 'Analyzing prompt...' : 'Waiting for prompt...'}
