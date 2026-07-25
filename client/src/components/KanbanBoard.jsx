@@ -50,17 +50,21 @@ const KanbanBoard = ({ status, tasks = [], role }) => {
   }, [status, totalTasks]);
 
   return (
-    <div className="mt-4">
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mt-4 w-full"
+    >
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-2 w-full">
 
         {stages.map((name, index) => (
           <div
             key={name}
-            className="rounded-lg border border-gray-800 bg-gray-950 p-2 h-16 flex flex-col items-center justify-between"
+            className="rounded-lg border border-gray-700/60 bg-gray-500/5 backdrop-blur-sm p-2 h-16 flex flex-col items-center justify-between overflow-hidden"
           >
 
-            <span className="text-[9px] uppercase tracking-wider text-gray-500">
+            <span className="text-[9px] uppercase tracking-wider text-gray-500 truncate w-full text-center px-0.5">
               {name}
             </span>
 
@@ -84,8 +88,8 @@ const KanbanBoard = ({ status, tasks = [], role }) => {
                 >
                   <Hexagon
                     size={18}
-                    className={`fill-violet-500 stroke-violet-400 ${stage === 2
-                      ? "drop-shadow-[0_0_10px_rgba(139,92,246,0.9)]"
+                    className={`fill-violet-500 stroke-violet-400 transition-all duration-500 ${stage === 2
+                      ? "drop-shadow-[0_0_15px_rgba(139,92,246,1)] scale-110"
                       : ""
                       }`}
                   />
@@ -112,7 +116,7 @@ const KanbanBoard = ({ status, tasks = [], role }) => {
         planning task{count === 1 ? "" : "s"}
       </motion.p>
 
-    </div>
+    </motion.div>
   );
 };
 

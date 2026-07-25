@@ -92,7 +92,7 @@ const AgentCard = ({ role, agentData, isLoading }) => {
   const iconColorClass = isCompleted ? 'text-gray-300' : (isError ? 'text-red-400' : 'text-gray-500');
 
   return (
-    <div className={`bg-gray-900 border ${borderClass} rounded-2xl p-5 flex flex-col transition-all duration-300 relative overflow-hidden group min-h-[24rem]`}>
+    <div className={`bg-gray-900 border ${borderClass} rounded-2xl p-5 flex flex-col transition-all duration-300 relative overflow-hidden group min-h-[21rem]`}>
       <div className="flex items-start justify-between mb-4 relative z-10">
         <div className={`w-10 h-10 rounded-xl bg-gray-950 border ${iconBorderClass} flex items-center justify-center transition-colors`}>
           <Icon size={20} className={iconColorClass} />
