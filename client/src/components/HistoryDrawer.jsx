@@ -1,4 +1,5 @@
-import { X, Search, History, Copy, Trash2, FolderOpen } from 'lucide-react';
+import { useState } from 'react';
+import { X, Search, History, Copy, Trash2, FolderOpen, AlertTriangle } from 'lucide-react';
 
 const HistoryDrawer = ({ 
   isOpen, 
@@ -9,6 +10,22 @@ const HistoryDrawer = ({
   onDuplicateProject,
   currentProjectId
 }) => {
+  const [projectToDelete, setProjectToDelete] = useState(null);
+
+  const confirmDelete = (project) => {
+    setProjectToDelete(project);
+  };
+
+  const handleConfirmDelete = () => {
+    if (projectToDelete) {
+      onDeleteProject(projectToDelete._id);
+      setProjectToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setProjectToDelete(null);
+  };
   return (
     <>
       {/* Backdrop */}
@@ -17,6 +34,41 @@ const HistoryDrawer = ({
           className="fixed inset-0 bg-black/50 z-40 transition-opacity"
           onClick={onClose}
         />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {projectToDelete && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center">
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            onClick={handleCancelDelete}
+          />
+          <div className="relative bg-gray-900 border border-gray-800 rounded-xl p-6 w-[90%] max-w-sm shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
+                <AlertTriangle size={24} className="text-red-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">Delete Project?</h3>
+              <p className="text-sm text-gray-400 mb-6">
+                You're about to permanently delete "<span className="text-gray-200 font-medium">{projectToDelete.projectName}</span>".<br />This action cannot be undone.
+              </p>
+              <div className="flex gap-3 w-full">
+                <button 
+                  onClick={handleCancelDelete}
+                  className="flex-1 py-2 px-4 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleConfirmDelete}
+                  className="flex-1 py-2 px-4 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-medium transition-colors"
+                >
+                  Delete Project
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Drawer */}
@@ -91,7 +143,7 @@ const HistoryDrawer = ({
                       <Copy size={14} />
                     </button>
                     <button
-                      onClick={() => onDeleteProject(project._id)}
+                      onClick={() => confirmDelete(project)}
                       className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-md transition-colors"
                       title="Delete"
                     >
