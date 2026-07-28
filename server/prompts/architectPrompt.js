@@ -21,7 +21,23 @@ Do NOT include any explanations, prose, or introductory text before or after the
     "Task 1",
     "Task 2",
     "Task 3"
-  ]
+  ],
+  "blueprint": {
+    "type": "architecture",
+    "components": [
+      {
+        "id": "[lowercase-unique-id]",
+        "title": "[Component title]",
+        "description": "[Short description of this component]"
+      }
+    ],
+    "connections": [
+      {
+        "from": "[source-component-id]",
+        "to": "[target-component-id]"
+      }
+    ]
+  }
 }
 
 The tasks array MUST satisfy ALL of the following:
@@ -30,6 +46,15 @@ The tasks array MUST satisfy ALL of the following:
 - each task is under 8 words
 - each task is an actionable planning task
 - no numbering, no markdown, no objects, no priority, no estimates, no status, no extra fields
+
+The blueprint MUST satisfy ALL of the following:
+- type must be exactly "architecture"
+- components must represent real system parts: services, databases, storage, gateways, external APIs
+- each component must have: id (lowercase unique string), title (string), description (string)
+- connections must only reference ids that exist in the components array
+- each connection must have: from (string id), to (string id)
+- extract information from your summary — do not invent unrelated concepts
+- all values must be plain strings — no markdown, no HTML
 `;
 
 module.exports = {

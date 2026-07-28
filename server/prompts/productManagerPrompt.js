@@ -23,7 +23,23 @@ Do NOT include any explanations, prose, or introductory text before or after the
     "Task 1",
     "Task 2",
     "Task 3"
-  ]
+  ],
+  "blueprint": {
+    "type": "mindmap",
+    "center": "[Project name as the central node]",
+    "branches": [
+      {
+        "title": "[Primary branch title]",
+        "description": "[Short explanation of this branch]",
+        "children": [
+          {
+            "title": "[Child node title]",
+            "description": "[Short explanation]"
+          }
+        ]
+      }
+    ]
+  }
 }
 
 The tasks array MUST satisfy ALL of the following:
@@ -32,6 +48,16 @@ The tasks array MUST satisfy ALL of the following:
 - each task is under 8 words
 - each task is an actionable planning task
 - no numbering, no markdown, no objects, no priority, no estimates, no status, no extra fields
+
+The blueprint MUST satisfy ALL of the following:
+- type must be exactly "mindmap"
+- center must be the project name
+- branches must have between 2 and 6 items
+- each branch must have: title (string), description (string), children (array)
+- children may contain objects with title and description
+- do NOT exceed three hierarchy levels (branches > children > grandchildren)
+- extract information from your summary — do not invent unrelated concepts
+- all values must be plain strings — no markdown, no HTML, no nested objects beyond the schema
 `;
 
 module.exports = {

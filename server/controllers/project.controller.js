@@ -45,22 +45,26 @@ const generateBlueprint = async (req, res) => {
       productManager: {
         status: pmResult.error ? "error" : "completed",
         summary: pmResult.summary || "No summary provided.",
-        tasks: pmResult.tasks || []
+        tasks: pmResult.tasks || [],
+        blueprint: pmResult.blueprint || null
       },
       systemArchitect: {
         status: archResult.error ? "error" : "completed",
         summary: archResult.summary || "No summary provided.",
-        tasks: archResult.tasks || []
+        tasks: archResult.tasks || [],
+        blueprint: archResult.blueprint || null
       },
       uiDesigner: {
         status: uiResult.error ? "error" : "completed",
         summary: uiResult.summary || "No summary provided.",
-        tasks: uiResult.tasks || []
+        tasks: uiResult.tasks || [],
+        blueprint: uiResult.blueprint || null
       },
       backendEngineer: {
         status: backendResult.error ? "error" : "completed",
         summary: backendResult.summary || "No summary provided.",
-        tasks: backendResult.tasks || []
+        tasks: backendResult.tasks || [],
+        blueprint: backendResult.blueprint || null
       }
     };
 
