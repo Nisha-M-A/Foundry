@@ -3,7 +3,6 @@ import ReactFlow, {
   Background,
   BackgroundVariant,
   Controls,
-  MiniMap,
   useNodesState,
   useEdgesState,
   useReactFlow,
@@ -94,8 +93,8 @@ const ArchitectureInner = ({ blueprint }) => {
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
         fitView
-        fitViewOptions={{ padding: 0.15, includeHiddenNodes: false }}
-        minZoom={0.2}
+        fitViewOptions={{ padding: 0.1, includeHiddenNodes: false }}
+        minZoom={0.1}
         maxZoom={1.5}
         proOptions={{ hideAttribution: true }}
         style={{ background: 'transparent' }}
@@ -105,14 +104,6 @@ const ArchitectureInner = ({ blueprint }) => {
         <Controls
           showInteractive={false}
           style={{ background: 'rgba(15,23,42,0.92)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: 10, padding: 4, boxShadow: '0 4px 16px rgba(0,0,0,0.5)', bottom: 16, left: 16 }}
-        />
-
-        <MiniMap
-          style={{ background: 'rgba(15,23,42,0.92)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.5)', bottom: 16, right: 16 }}
-          nodeColor={(node) => node.data?.palette?.color || '#3b82f6'}
-          maskColor="rgba(0,0,0,0.55)"
-          pannable
-          zoomable
         />
       </ReactFlow>
 

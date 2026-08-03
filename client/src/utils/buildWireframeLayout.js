@@ -15,8 +15,8 @@ export function buildWireframeLayout(blueprint) {
 
   // Figma-like spacing
   const COLS = 3;
-  const X_SPACING = 400;
-  const Y_SPACING = 380;
+  const X_SPACING = 460;
+  const Y_SPACING = 420;
 
   blueprint.screens.forEach((screen, index) => {
     const col = index % COLS;

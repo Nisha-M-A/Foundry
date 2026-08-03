@@ -3,7 +3,6 @@ import ReactFlow, {
   Background,
   BackgroundVariant,
   Controls,
-  MiniMap,
   useNodesState,
   useEdgesState,
   useReactFlow,
@@ -144,9 +143,9 @@ const MindMapInner = ({ blueprint }) => {
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
         fitView
-        fitViewOptions={{ padding: 0.2 }}
-        minZoom={0.25}
-        maxZoom={1.8}
+        fitViewOptions={{ padding: 0.1, includeHiddenNodes: false }}
+        minZoom={0.1}
+        maxZoom={1.5}
         proOptions={{ hideAttribution: true }}
         panOnScroll
         selectionOnDrag={false}
@@ -172,26 +171,6 @@ const MindMapInner = ({ blueprint }) => {
             bottom: 16,
             left: 16,
           }}
-        />
-
-        {/* MiniMap — nodes coloured by branch palette */}
-        <MiniMap
-          style={{
-            background: 'rgba(10,8,35,0.92)',
-            border: '1px solid rgba(99,102,241,0.2)',
-            borderRadius: 10,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
-            bottom: 16,
-            right: 16,
-          }}
-          nodeColor={(node) => {
-            if (node.data?.nodeKind === 'center') return '#818cf8';
-            const bi = node.data?.branchIndex ?? 0;
-            return BRANCH_COLORS[bi % BRANCH_COLORS.length]?.color ?? '#818cf8';
-          }}
-          maskColor="rgba(0,0,0,0.55)"
-          pannable
-          zoomable
         />
       </ReactFlow>
 

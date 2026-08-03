@@ -1,4 +1,4 @@
-import { User, Cpu, PenTool, Database, Clock, CheckCircle2, Loader2, AlertCircle, ChevronDown, ChevronUp, ExternalLink, X, Map } from 'lucide-react';
+import { User, Cpu, PenTool, Database, Clock, CheckCircle2, Loader2, AlertCircle, ChevronDown, ChevronUp, ExternalLink, X, Map, Workflow, Brain, Layout } from 'lucide-react';
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import KanbanBoard from './KanbanBoard';
@@ -176,7 +176,7 @@ const AgentCard = ({ role, agentData, isLoading }) => {
               {isExpanded ? (
                 <><X size={11} strokeWidth={2.5} />Close</>
               ) : (
-                <><ExternalLink size={11} strokeWidth={2.5} />Open Blueprint</>
+                <><Workflow size={11} strokeWidth={2.5} />View Blueprint</>
               )}
             </motion.button>
           )}
@@ -199,7 +199,7 @@ const AgentCard = ({ role, agentData, isLoading }) => {
               {isExpanded ? (
                 <><X size={11} strokeWidth={2.5} />Close</>
               ) : (
-                <><Map size={11} strokeWidth={2.5} />Mind Map</>
+                <><Brain size={11} strokeWidth={2.5} />View Blueprint</>
               )}
             </motion.button>
           )}
@@ -222,7 +222,7 @@ const AgentCard = ({ role, agentData, isLoading }) => {
               {isExpanded ? (
                 <><X size={11} strokeWidth={2.5} />Close</>
               ) : (
-                <><Cpu size={11} strokeWidth={2.5} />Architecture</>
+                <><Cpu size={11} strokeWidth={2.5} />View Blueprint</>
               )}
             </motion.button>
           )}
@@ -245,7 +245,7 @@ const AgentCard = ({ role, agentData, isLoading }) => {
               {isExpanded ? (
                 <><X size={11} strokeWidth={2.5} />Close</>
               ) : (
-                <><PenTool size={11} strokeWidth={2.5} />Wireframes</>
+                <><Layout size={11} strokeWidth={2.5} />View Blueprint</>
               )}
             </motion.button>
           )}

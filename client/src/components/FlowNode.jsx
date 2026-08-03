@@ -78,7 +78,7 @@ const FlowNode = ({ id, data }) => {
   const toggle = () => data.setExpandedId(isExpanded ? null : id);
 
   return (
-    <div style={{ width: 300, fontFamily: "'Inter', 'system-ui', sans-serif" }}>
+    <div style={{ width: 300, position: 'relative', zIndex: isExpanded ? 50 : 1, fontFamily: "'Inter', 'system-ui', sans-serif" }}>
 
       {/* ── Top connection handle ── */}
       <Handle
@@ -104,7 +104,6 @@ const FlowNode = ({ id, data }) => {
         style={{
           cursor: 'pointer',
           borderRadius: 16,
-          overflow: 'hidden',
           background: isExpanded
             ? 'linear-gradient(150deg, rgba(30,27,75,0.95) 0%, rgba(20,18,60,0.98) 100%)'
             : 'linear-gradient(150deg, rgba(20,18,55,0.92) 0%, rgba(13,11,40,0.96) 100%)',
@@ -205,28 +204,34 @@ const FlowNode = ({ id, data }) => {
             }
           </div>
         </div>
+      </motion.div>
 
-        {/* ── Expandable detail panel ── */}
+        {/* ── Expandable detail popover ── */}
         <AnimatePresence initial={false}>
           {isExpanded && (
             <motion.div
               key="detail"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: [0.33, 1, 0.68, 1] }}
-              style={{ overflow: 'hidden' }}
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                width: 300,
+                marginTop: 8,
+                borderRadius: 16,
+                background: 'linear-gradient(150deg, rgba(30,27,75,0.95) 0%, rgba(20,18,60,0.98) 100%)',
+                border: `1px solid ${color}55`,
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                boxShadow: `0 12px 40px rgba(0,0,0,0.8), 0 0 24px ${glow}`,
+                overflow: 'hidden',
+                zIndex: 50,
+              }}
             >
-              {/* Gradient separator */}
-              <div
-                style={{
-                  height: 1,
-                  background: `linear-gradient(90deg, transparent, ${color}50, transparent)`,
-                  margin: '0 14px',
-                }}
-              />
-
-              <div style={{ padding: '12px 14px 14px' }}>
+              <div style={{ padding: '16px' }}>
                 {/* Section label */}
                 <div
                   style={{
@@ -254,72 +259,52 @@ const FlowNode = ({ id, data }) => {
                       color: color,
                     }}
                   >
-                    Implementation Notes
+                    Implementation Details
                   </span>
                 </div>
 
-                {/* Description */}
-                {data.description && (
-                  <p
-                    style={{
-                      fontSize: 11,
-                      color: 'rgba(148,163,184,0.9)',
-                      lineHeight: 1.6,
-                      marginBottom: data.details?.length ? 10 : 0,
-                      fontStyle: 'italic',
-                    }}
-                  >
-                    {data.description}
-                  </p>
-                )}
-
-                {/* Detail bullets */}
-                {data.details?.length > 0 && (
-                  <ul
-                    style={{
-                      margin: 0,
-                      padding: 0,
-                      listStyle: 'none',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 6,
-                    }}
-                  >
-                    {data.details.map((detail, i) => (
-                      <li
-                        key={i}
+                <ul
+                  style={{
+                    margin: 0,
+                    padding: 0,
+                    listStyle: 'none',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 8,
+                  }}
+                >
+                  {(data.details || []).map((detail, idx) => (
+                    <li
+                      key={idx}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: 8,
+                        fontSize: 11,
+                        color: 'rgba(148,163,184,0.9)',
+                        lineHeight: 1.45,
+                      }}
+                    >
+                      <span
                         style={{
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: 8,
-                          fontSize: 10.5,
-                          color: '#c7d2fe',
-                          lineHeight: 1.5,
+                          flexShrink: 0,
+                          width: 4,
+                          height: 4,
+                          borderRadius: '50%',
+                          background: color,
+                          opacity: 0.8,
+                          marginTop: 5,
+                          boxShadow: `0 0 5px ${color}80`,
                         }}
-                      >
-                        {/* Bullet */}
-                        <span
-                          style={{
-                            flexShrink: 0,
-                            width: 4,
-                            height: 4,
-                            borderRadius: '50%',
-                            background: color,
-                            opacity: 0.8,
-                            marginTop: 5,
-                            boxShadow: `0 0 5px ${color}80`,
-                          }}
-                        />
-                        {detail}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                      />
+                      {detail}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
 
       {/* ── Bottom connection handle ── */}
       <Handle

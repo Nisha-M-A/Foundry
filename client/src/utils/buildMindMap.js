@@ -42,9 +42,9 @@ export function buildMindMap(blueprint) {
   const branchCount  = blueprint.branches.length;
 
   // Radius from center → branch node (in px)
-  const BRANCH_RADIUS = branchCount <= 4 ? 280 : 320;
+  const BRANCH_RADIUS = branchCount <= 4 ? 320 : 380;
   // Radius from branch → child node
-  const CHILD_RADIUS  = 200;
+  const CHILD_RADIUS  = 240;
 
   // ── Center node ───────────────────────────────────────────────
   nodes.push({

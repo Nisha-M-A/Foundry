@@ -23,7 +23,7 @@ const WireframeNode = ({ id, data }) => {
   };
 
   return (
-    <div style={{ width: 320, fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div style={{ width: 320, position: 'relative', zIndex: isExpanded ? 50 : 1, fontFamily: "'Inter', system-ui, sans-serif" }}>
       {/* Target handle for incoming prototypes */}
       <Handle type="target" position={Position.Left} style={{ ...handleStyle, left: -5, opacity: 0 }} />
       
@@ -39,7 +39,6 @@ const WireframeNode = ({ id, data }) => {
         style={{
           cursor: 'pointer',
           borderRadius: 12,
-          overflow: 'hidden',
           background: isExpanded
             ? 'linear-gradient(150deg, rgba(30,30,36,0.95) 0%, rgba(18,18,22,0.98) 100%)'
             : 'linear-gradient(150deg, rgba(40,40,46,0.85) 0%, rgba(20,20,25,0.9) 100%)',
@@ -112,19 +111,34 @@ const WireframeNode = ({ id, data }) => {
               </div>
             </div>
           </div>
+        </div>
+      </motion.div>
 
           {/* Expanded Component Details */}
           <AnimatePresence initial={false}>
             {isExpanded && components.length > 0 && (
               <motion.div
                 key="details"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.3, ease: [0.33, 1, 0.68, 1] }}
-                style={{ overflow: 'hidden' }}
+                initial={{ opacity: 0, x: -10, scale: 0.95 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: -10, scale: 0.95 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 'calc(100% + 16px)',
+                  width: 320,
+                  borderRadius: 12,
+                  background: 'linear-gradient(150deg, rgba(30,30,36,0.95) 0%, rgba(18,18,22,0.98) 100%)',
+                  border: `1px solid ${accentColor}60`,
+                  backdropFilter: 'blur(20px)',
+                  boxShadow: `0 16px 40px rgba(0,0,0,0.7), 0 0 24px ${glowColor}`,
+                  zIndex: 50,
+                  overflow: 'hidden',
+                  padding: '16px'
+                }}
               >
-                <div style={{ height: 1, background: `linear-gradient(90deg, transparent, ${accentColor}40, transparent)`, margin: '0 0 12px 0' }} />
+                <div style={{ height: 1, background: `linear-gradient(90deg, transparent, ${accentColor}40, transparent)`, margin: '0 0 12px 0', display: 'none' }} />
                 
                 <h5 style={{ fontSize: 10, fontWeight: 700, color: accentColor, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
                   Screen Composition
@@ -144,8 +158,6 @@ const WireframeNode = ({ id, data }) => {
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
-      </motion.div>
 
       {/* Source handle for outgoing prototypes */}
       <Handle type="source" position={Position.Right} style={{ ...handleStyle, right: -5, opacity: 0 }} />

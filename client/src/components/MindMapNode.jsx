@@ -1,7 +1,23 @@
 import { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronUp, Brain, Sparkles, Layers, Star } from 'lucide-react';
+import { ChevronDown, ChevronUp, Brain, Sparkles, Layers, Star, Target, Eye, Map as MapIcon, BarChart2, Users, Rocket, Search, MessageSquare, Lightbulb, Flag, Zap } from 'lucide-react';
+
+function resolveMindMapIcon(label = '') {
+  const t = label.toLowerCase();
+  if (t.includes('goal') || t.includes('objective') || t.includes('kpi')) return Target;
+  if (t.includes('vision') || t.includes('mission')) return Eye;
+  if (t.includes('feature') || t.includes('core')) return Star;
+  if (t.includes('roadmap') || t.includes('plan') || t.includes('timeline')) return MapIcon;
+  if (t.includes('metric') || t.includes('analytics') || t.includes('data')) return BarChart2;
+  if (t.includes('user') || t.includes('customer') || t.includes('persona')) return Users;
+  if (t.includes('launch') || t.includes('release') || t.includes('deploy')) return Rocket;
+  if (t.includes('research') || t.includes('study')) return Search;
+  if (t.includes('feedback') || t.includes('review')) return MessageSquare;
+  if (t.includes('idea') || t.includes('concept')) return Lightbulb;
+  if (t.includes('milestone')) return Flag;
+  return Sparkles; // Default
+}
 
 /**
  * MindMapNode — renders three visual variants:
@@ -28,6 +44,8 @@ const MindMapNode = ({ id, data }) => {
   const isCenter = nodeKind === 'center';
   const isBranch = nodeKind === 'branch';
   const isChild  = nodeKind === 'child';
+  
+  const ResolvedIcon = resolveMindMapIcon(label);
 
   // A branch is expanded when its id matches expandedBranchId
   const isExpanded = isBranch && expandedBranchId === id;
@@ -129,6 +147,8 @@ const MindMapNode = ({ id, data }) => {
         style={{
           width: 180,
           fontFamily: "'Inter', system-ui, sans-serif",
+          position: 'relative',
+          zIndex: isExpanded ? 50 : 1,
         }}
       >
         {/* Handles — target from center (all sides), source to children (all sides) */}
@@ -175,16 +195,24 @@ const MindMapNode = ({ id, data }) => {
             }}
           >
             {/* Colour pill / accent */}
+            {/* Icon Badge */}
             <div
               style={{
                 flexShrink: 0,
-                width: 3,
-                height: 28,
-                borderRadius: 2,
-                background: color,
-                boxShadow: `0 0 6px ${color}80`,
+                width: 26,
+                height: 26,
+                borderRadius: 8,
+                background: bg,
+                border: `1px solid ${color}40`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: color,
+                boxShadow: `0 0 8px ${glow}`,
               }}
-            />
+            >
+              <ResolvedIcon size={14} strokeWidth={2.5} />
+            </div>
 
             {/* Label */}
             <span
@@ -228,23 +256,37 @@ const MindMapNode = ({ id, data }) => {
               </div>
             )}
           </div>
+        </motion.div>
 
-          {/* Expanded description */}
+          {/* Expanded description popover */}
           <AnimatePresence initial={false}>
             {isExpanded && description && (
               <motion.div
                 key="desc"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.28, ease: [0.33, 1, 0.68, 1] }}
-                style={{ overflow: 'hidden' }}
+                initial={{ opacity: 0, x: -10, scale: 0.95 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: -10, scale: 0.95 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 'calc(100% + 12px)',
+                  width: 240,
+                  borderRadius: 12,
+                  background: `linear-gradient(145deg, rgba(17,14,50,0.95) 0%, rgba(10,8,35,0.98) 100%)`,
+                  border: `1px solid ${color}55`,
+                  backdropFilter: 'blur(16px)',
+                  boxShadow: `0 8px 32px rgba(0,0,0,0.6), 0 0 20px ${glow}`,
+                  zIndex: 50,
+                  overflow: 'hidden',
+                }}
               >
                 <div
                   style={{
                     height: 1,
                     background: `linear-gradient(90deg, transparent, ${color}40, transparent)`,
                     margin: '0 12px',
+                    display: 'none', // hide separator since it's a standalone popover now
                   }}
                 />
                 <div style={{ padding: '10px 12px 12px' }}>
@@ -300,7 +342,6 @@ const MindMapNode = ({ id, data }) => {
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
       </div>
     );
   }
@@ -335,17 +376,23 @@ const MindMapNode = ({ id, data }) => {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 7 }}>
-          <div
-            style={{
-              flexShrink: 0,
-              width: 5,
-              height: 5,
-              borderRadius: '50%',
-              background: color,
-              boxShadow: `0 0 5px ${color}`,
-              marginTop: 4,
-            }}
-          />
+        {/* Icon Badge */}
+        <div
+          style={{
+            flexShrink: 0,
+            width: 22,
+            height: 22,
+            borderRadius: 6,
+            background: bg,
+            border: `1px solid ${color}40`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: color,
+          }}
+        >
+          <ResolvedIcon size={12} strokeWidth={2.5} />
+        </div>
           <div>
             <div
               style={{

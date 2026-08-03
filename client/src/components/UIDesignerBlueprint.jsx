@@ -3,7 +3,6 @@ import ReactFlow, {
   Background,
   BackgroundVariant,
   Controls,
-  MiniMap,
   useNodesState,
   useEdgesState,
   useReactFlow,
@@ -81,8 +80,8 @@ const WireframeInner = ({ blueprint }) => {
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
         fitView
-        fitViewOptions={{ padding: 0.2, includeHiddenNodes: false }}
-        minZoom={0.2}
+        fitViewOptions={{ padding: 0.1, includeHiddenNodes: false }}
+        minZoom={0.1}
         maxZoom={1.5}
         proOptions={{ hideAttribution: true }}
         style={{ background: 'transparent' }}
@@ -92,14 +91,6 @@ const WireframeInner = ({ blueprint }) => {
         <Controls
           showInteractive={false}
           style={{ background: 'rgba(17,24,39,0.92)', border: '1px solid rgba(236,72,153,0.2)', borderRadius: 10, padding: 4, boxShadow: '0 4px 16px rgba(0,0,0,0.5)', bottom: 16, left: 16 }}
-        />
-
-        <MiniMap
-          style={{ background: 'rgba(17,24,39,0.92)', border: '1px solid rgba(236,72,153,0.2)', borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.5)', bottom: 16, right: 16 }}
-          nodeColor={() => '#ec4899'}
-          maskColor="rgba(0,0,0,0.55)"
-          pannable
-          zoomable
         />
       </ReactFlow>
 

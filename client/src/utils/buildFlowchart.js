@@ -19,7 +19,7 @@ export function buildFlowchart(blueprint) {
   g.setGraph({
     rankdir: 'TB',   // top-to-bottom
     nodesep: 60,     // horizontal breathing room between sibling nodes
-    ranksep: 90,     // vertical space between ranks
+    ranksep: 60,     // vertical space between ranks
     marginx: 60,
     marginy: 60,
   });

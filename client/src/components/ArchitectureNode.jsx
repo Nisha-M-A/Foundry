@@ -41,7 +41,7 @@ const ArchitectureNode = ({ id, data }) => {
   };
 
   return (
-    <div style={{ width: 280, fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div style={{ width: 280, position: 'relative', zIndex: isExpanded ? 50 : 1, fontFamily: "'Inter', system-ui, sans-serif" }}>
       {/* Left connection handle (Target from previous layer) */}
       <Handle type="target" position={Position.Left} style={{ ...handleStyle, left: -5 }} />
 
@@ -54,7 +54,6 @@ const ArchitectureNode = ({ id, data }) => {
         style={{
           cursor: 'pointer',
           borderRadius: type === 'service' ? 12 : type === 'database' ? 20 : 8,
-          overflow: 'hidden',
           background: isExpanded
             ? `linear-gradient(150deg, rgba(15,23,42,0.95) 0%, rgba(9,14,23,0.98) 100%)`
             : `linear-gradient(150deg, rgba(30,41,59,0.85) 0%, rgba(15,23,42,0.9) 100%)`,
@@ -134,19 +133,32 @@ const ArchitectureNode = ({ id, data }) => {
             {isExpanded ? <ChevronUp size={14} strokeWidth={2.5} /> : <ChevronDown size={14} strokeWidth={2.5} />}
           </div>
         </div>
+      </motion.div>
 
         {/* Expanded Description & Notes */}
         <AnimatePresence initial={false}>
           {isExpanded && (
             <motion.div
               key="detail"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: [0.33, 1, 0.68, 1] }}
-              style={{ overflow: 'hidden' }}
+              initial={{ opacity: 0, x: -10, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -10, scale: 0.95 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 'calc(100% + 16px)',
+                width: 280,
+                borderRadius: 12,
+                background: `linear-gradient(150deg, rgba(15,23,42,0.95) 0%, rgba(9,14,23,0.98) 100%)`,
+                border: `1px solid ${palette.color}50`,
+                backdropFilter: 'blur(16px)',
+                boxShadow: `0 12px 40px rgba(0,0,0,0.6), 0 0 24px ${palette.glow}`,
+                zIndex: 50,
+                overflow: 'hidden',
+              }}
             >
-              <div style={{ height: 1, background: `linear-gradient(90deg, transparent, ${palette.color}50, transparent)`, margin: '0 16px' }} />
+              <div style={{ height: 1, background: `linear-gradient(90deg, transparent, ${palette.color}50, transparent)`, margin: '0 16px', display: 'none' }} />
               
               <div style={{ padding: '12px 16px 16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
@@ -176,7 +188,6 @@ const ArchitectureNode = ({ id, data }) => {
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
 
       {/* Right connection handle (Source to next layer) */}
       <Handle type="source" position={Position.Right} style={{ ...handleStyle, right: -5 }} />
