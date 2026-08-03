@@ -182,3 +182,45 @@
     border-right-color: var(--border);
   }
 }
+
+/* ── ReactFlow blueprint canvas overrides ───────────────────── */
+
+/* Controls panel buttons */
+.react-flow__controls-button {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.12) !important;
+  color: rgba(129, 140, 248, 0.7) !important;
+  width: 26px !important;
+  height: 26px !important;
+  transition: background 0.18s ease, color 0.18s ease !important;
+}
+
+.react-flow__controls-button:hover {
+  background: rgba(99, 102, 241, 0.15) !important;
+  color: #a5b4fc !important;
+}
+
+.react-flow__controls-button:last-child {
+  border-bottom: none !important;
+}
+
+.react-flow__controls-button svg {
+  fill: currentColor;
+  stroke: none;
+  max-width: 12px;
+  max-height: 12px;
+}
+
+/* Edge animated dashes */
+.react-flow__edge-path {
+  stroke-dashoffset: 0;
+}
+
+/* Remove default white background from selection box */
+.react-flow__selection {
+  background: rgba(99, 102, 241, 0.06) !important;
+  border: 1px solid rgba(129, 140, 248, 0.4) !important;
+}
+
+/* MiniMap node colour override via CSS variable is done inline */

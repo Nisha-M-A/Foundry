@@ -1,4 +1,4 @@
-import { User, Cpu, PenTool, Database, Clock, CheckCircle2, Loader2, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { User, Cpu, PenTool, Database, Clock, CheckCircle2, Loader2, AlertCircle, ChevronDown, ChevronUp, ExternalLink, X } from 'lucide-react';
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import KanbanBoard from './KanbanBoard';
@@ -126,24 +126,34 @@ const AgentCard = ({ role, agentData, isLoading }) => {
         <div className="flex items-center justify-between">
           <h3 className={`font-medium text-sm transition-colors ${isCompleted ? 'text-gray-200' : 'text-gray-300'}`}>{role}</h3>
 
-          {/* Expand / Collapse button — only for Backend Engineer when blueprint is available */}
+          {/* Open Blueprint / Close Blueprint button — only for Backend Engineer */}
           {hasBlueprint && (
             <motion.button
               onClick={() => setIsExpanded((v) => !v)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 text-[10px] font-semibold uppercase tracking-wider hover:bg-indigo-500/20 transition-colors"
-              aria-label={isExpanded ? 'Collapse flowchart' : 'View flowchart'}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all"
+              style={{
+                background: isExpanded
+                  ? 'rgba(99,102,241,0.18)'
+                  : 'rgba(99,102,241,0.1)',
+                border: isExpanded
+                  ? '1px solid rgba(129,140,248,0.4)'
+                  : '1px solid rgba(99,102,241,0.25)',
+                color: isExpanded ? '#a5b4fc' : '#818cf8',
+                boxShadow: isExpanded ? '0 0 12px rgba(99,102,241,0.2)' : 'none',
+              }}
+              aria-label={isExpanded ? 'Close blueprint' : 'Open blueprint'}
             >
               {isExpanded ? (
                 <>
-                  <ChevronUp size={11} />
-                  Collapse
+                  <X size={11} strokeWidth={2.5} />
+                  Close
                 </>
               ) : (
                 <>
-                  <ChevronDown size={11} />
-                  Flowchart
+                  <ExternalLink size={11} strokeWidth={2.5} />
+                  Open Blueprint
                 </>
               )}
             </motion.button>
@@ -152,19 +162,22 @@ const AgentCard = ({ role, agentData, isLoading }) => {
         
         <AnimatePresence mode="wait">
           {isCompleted || isError ? (
-            <motion.div 
-              key="summary"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className={`${isError ? 'text-red-400/80' : 'text-gray-400'} text-xs mt-1 line-clamp-3 leading-relaxed`}
-            >
-              {typeof localSummary === 'object' && localSummary !== null ? (
-                "Designs backend APIs, database, authentication, and business logic."
-              ) : (
-                localSummary
-              )}
-            </motion.div>
+            /* Hide summary when a blueprint is present — it would be redundant */
+            !hasBlueprint && (
+              <motion.div 
+                key="summary"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className={`${isError ? 'text-red-400/80' : 'text-gray-400'} text-xs mt-1 line-clamp-3 leading-relaxed`}
+              >
+                {typeof localSummary === 'object' && localSummary !== null ? (
+                  "Designs backend APIs, database, authentication, and business logic."
+                ) : (
+                  localSummary
+                )}
+              </motion.div>
+            )
           ) : (
             <motion.p 
               key="status-text"

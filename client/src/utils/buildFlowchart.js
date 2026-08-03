@@ -1,9 +1,9 @@
 import dagre from '@dagrejs/dagre';
 import { MarkerType } from 'reactflow';
 
-// Larger nodes for readability
-const NODE_WIDTH = 290;
-const NODE_HEIGHT = 90;
+// Node dimensions — wide enough for icon + title + description
+const NODE_WIDTH = 300;
+const NODE_HEIGHT = 80;
 
 /**
  * Takes a raw blueprint ({ nodes, edges }) from the backend
@@ -18,10 +18,10 @@ export function buildFlowchart(blueprint) {
   g.setDefaultEdgeLabel(() => ({}));
   g.setGraph({
     rankdir: 'TB',   // top-to-bottom
-    nodesep: 80,     // more horizontal breathing room
-    ranksep: 110,    // more vertical breathing room between ranks
-    marginx: 40,
-    marginy: 40,
+    nodesep: 60,     // horizontal breathing room between sibling nodes
+    ranksep: 90,     // vertical space between ranks
+    marginx: 60,
+    marginy: 60,
   });
 
   // Register nodes in dagre
@@ -39,7 +39,7 @@ export function buildFlowchart(blueprint) {
   dagre.layout(g);
 
   // Build ReactFlow nodes with computed positions
-  const rfNodes = blueprint.nodes.map((node) => {
+  const rfNodes = blueprint.nodes.map((node, index) => {
     const { x, y } = g.node(node.id);
     return {
       id: node.id,
@@ -52,11 +52,12 @@ export function buildFlowchart(blueprint) {
         title: node.title,
         description: node.description,
         details: node.details || [],
+        nodeIndex: index,
       },
     };
   });
 
-  // Build ReactFlow edges — slightly thicker, premium indigo
+  // Build ReactFlow edges — premium indigo with animated flow
   const rfEdges = blueprint.edges
     .filter((edge) => edge.from && edge.to)
     .map((edge, index) => ({
@@ -66,14 +67,15 @@ export function buildFlowchart(blueprint) {
       type: 'smoothstep',
       animated: true,
       style: {
-        stroke: 'rgba(99,102,241,0.7)',
-        strokeWidth: 2,
+        stroke: 'url(#edgeGradient)',
+        strokeWidth: 2.5,
+        strokeDasharray: '6 3',
       },
       markerEnd: {
         type: MarkerType.ArrowClosed,
-        color: 'rgba(99,102,241,0.9)',
-        width: 18,
-        height: 18,
+        color: 'rgba(129,140,248,0.9)',
+        width: 16,
+        height: 16,
       },
     }));
 
