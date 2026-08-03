@@ -4,8 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import KanbanBoard from './KanbanBoard';
 
 // Lazy-load heavy ReactFlow components only when needed
-const BackendBlueprint = lazy(() => import('./BackendBlueprint'));
-const ProductMindMap   = lazy(() => import('./ProductMindMap'));
+const BackendBlueprint      = lazy(() => import('./BackendBlueprint'));
+const ProductMindMap        = lazy(() => import('./ProductMindMap'));
+const ArchitectureBlueprint = lazy(() => import('./ArchitectureBlueprint'));
 
 const icons = {
   'Product Manager': User,
@@ -25,6 +26,7 @@ const AgentCard = ({ role, agentData, isLoading }) => {
   const Icon = icons[role] || User;
   const isBackendEngineer  = role === 'Backend Engineer';
   const isProductManager   = role === 'Product Manager';
+  const isSystemArchitect  = role === 'System Architect';
 
   // Local states for stagger effect
   const [localStatus, setLocalStatus] = useState('idle'); // idle, thinking, completed, error
@@ -79,6 +81,13 @@ const AgentCard = ({ role, agentData, isLoading }) => {
     Array.isArray(agentData?.blueprint?.branches) &&
     agentData.blueprint.branches.length > 0;
 
+  const hasArchitecture =
+    isSystemArchitect &&
+    isCompleted &&
+    agentData?.blueprint?.type === 'architecture' &&
+    Array.isArray(agentData?.blueprint?.components) &&
+    agentData.blueprint.components.length > 0;
+
   let statusUI;
   if (isCompleted) {
     statusUI = (
@@ -113,13 +122,13 @@ const AgentCard = ({ role, agentData, isLoading }) => {
   const borderClass = isCompleted ? 'border-gray-700' : (isError ? 'border-red-900/50' : 'border-gray-800');
   const iconBorderClass = isCompleted ? 'border-gray-700' : (isError ? 'border-red-900/50' : 'border-gray-800');
 
-  // Either visualization can drive the expand state
-  const hasVisualization = hasBlueprint || hasMindMap;
+  // Any visualization can drive the expand state
+  const hasVisualization = hasBlueprint || hasMindMap || hasArchitecture;
   const iconColorClass = isCompleted ? 'text-gray-300' : (isError ? 'text-red-400' : 'text-gray-500');
 
-  // Border highlight colour — teal for PM mind map, indigo for backend flowchart
+  // Border highlight colour — teal for PM mind map, indigo for backend flowchart, cyan for architect diagram
   const expandedBorderClass = isExpanded
-    ? (hasMindMap ? 'border-teal-500/40' : 'border-indigo-500/40')
+    ? (hasMindMap ? 'border-teal-500/40' : hasArchitecture ? 'border-cyan-500/40' : 'border-indigo-500/40')
     : borderClass;
 
   return (
@@ -182,6 +191,29 @@ const AgentCard = ({ role, agentData, isLoading }) => {
                 <><X size={11} strokeWidth={2.5} />Close</>
               ) : (
                 <><Map size={11} strokeWidth={2.5} />Mind Map</>
+              )}
+            </motion.button>
+          )}
+
+          {/* Open Architecture — System Architect */}
+          {hasArchitecture && (
+            <motion.button
+              onClick={() => setIsExpanded((v) => !v)}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all"
+              style={{
+                background: isExpanded ? 'rgba(6,182,212,0.15)' : 'rgba(6,182,212,0.08)',
+                border: isExpanded ? '1px solid rgba(6,182,212,0.45)' : '1px solid rgba(6,182,212,0.22)',
+                color: isExpanded ? '#67e8f9' : '#06b6d4',
+                boxShadow: isExpanded ? '0 0 12px rgba(6,182,212,0.18)' : 'none',
+              }}
+              aria-label={isExpanded ? 'Close architecture' : 'Open architecture'}
+            >
+              {isExpanded ? (
+                <><X size={11} strokeWidth={2.5} />Close</>
+              ) : (
+                <><Cpu size={11} strokeWidth={2.5} />Architecture</>
               )}
             </motion.button>
           )}
@@ -271,6 +303,31 @@ const AgentCard = ({ role, agentData, isLoading }) => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* ── System Architect Architecture Panel ── */}
+        <AnimatePresence>
+          {hasArchitecture && isExpanded && (
+            <motion.div
+              key="architecture-panel"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.4, ease: 'easeInOut' }}
+              className="overflow-hidden mt-4"
+            >
+              <div className="border-t border-cyan-500/20 mb-4" />
+              <div className="flex items-center gap-2 mb-3">
+                <Cpu size={12} className="text-cyan-400" />
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-cyan-400">
+                  System Architecture
+                </span>
+              </div>
+              <Suspense fallback={<div className="flex items-center justify-center h-64 text-gray-500 text-xs">Loading architecture...</div>}>
+                <ArchitectureBlueprint blueprint={agentData.blueprint} />
+              </Suspense>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Background effects based on state */}
@@ -283,11 +340,14 @@ const AgentCard = ({ role, agentData, isLoading }) => {
       {isError && (
         <div className="absolute inset-0 bg-red-500/5 z-0"></div>
       )}
-      {isExpanded && !hasMindMap && (
+      {isExpanded && !hasMindMap && !hasArchitecture && (
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/3 to-purple-500/3 z-0 pointer-events-none" />
       )}
       {isExpanded && hasMindMap && (
         <div className="absolute inset-0 bg-gradient-to-br from-teal-500/3 to-cyan-500/3 z-0 pointer-events-none" />
+      )}
+      {isExpanded && hasArchitecture && (
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/3 to-blue-500/3 z-0 pointer-events-none" />
       )}
     </motion.div>
   );
