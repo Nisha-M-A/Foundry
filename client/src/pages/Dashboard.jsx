@@ -163,12 +163,14 @@ const Dashboard = () => {
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 px-1">
                 Your AI Team
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Top row: 3 agents */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                 <AgentCard role="Product Manager" agentData={agents.productManager} isLoading={isLoading} />
                 <AgentCard role="System Architect" agentData={agents.systemArchitect} isLoading={isLoading} />
                 <AgentCard role="UI Designer" agentData={agents.uiDesigner} isLoading={isLoading} />
-                <AgentCard role="Backend Engineer" agentData={agents.backendEngineer} isLoading={isLoading} />
               </div>
+              {/* Bottom row: Backend Engineer — full width so flowchart can expand */}
+              <AgentCard role="Backend Engineer" agentData={agents.backendEngineer} isLoading={isLoading} />
             </div>
           </div>
         </main>

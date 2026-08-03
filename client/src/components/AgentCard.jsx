@@ -1,7 +1,10 @@
-import { User, Cpu, PenTool, Database, Clock, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { User, Cpu, PenTool, Database, Clock, CheckCircle2, Loader2, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import KanbanBoard from './KanbanBoard';
+
+// Lazy-load the heavy ReactFlow component only when needed
+const BackendBlueprint = lazy(() => import('./BackendBlueprint'));
 
 const icons = {
   'Product Manager': User,
@@ -19,11 +22,15 @@ const delays = {
 
 const AgentCard = ({ role, agentData, isLoading }) => {
   const Icon = icons[role] || User;
+  const isBackendEngineer = role === 'Backend Engineer';
 
   // Local states for stagger effect
   const [localStatus, setLocalStatus] = useState('idle'); // idle, thinking, completed, error
   const [localSummary, setLocalSummary] = useState('');
   const [localTasks, setLocalTasks] = useState([]);
+
+  // Expand state — only for Backend Engineer
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     let timer;
@@ -33,6 +40,7 @@ const AgentCard = ({ role, agentData, isLoading }) => {
         setLocalStatus('thinking');
         setLocalSummary('');
         setLocalTasks([]);
+        setIsExpanded(false); // collapse on new generation
       }, delay);
     } else if (agentData && (agentData.status === 'completed' || agentData.status === 'error')) {
       const delay = delays[role] || 0;
@@ -45,6 +53,7 @@ const AgentCard = ({ role, agentData, isLoading }) => {
       setLocalStatus('idle');
       setLocalSummary('');
       setLocalTasks([]);
+      setIsExpanded(false);
     }
     
     return () => {
@@ -55,6 +64,11 @@ const AgentCard = ({ role, agentData, isLoading }) => {
   const isCompleted = localStatus === 'completed';
   const isError = localStatus === 'error';
   const isThinking = localStatus === 'thinking';
+
+  const hasBlueprint =
+    isBackendEngineer &&
+    isCompleted &&
+    agentData?.blueprint?.nodes?.length > 0;
 
   let statusUI;
   if (isCompleted) {
@@ -91,8 +105,16 @@ const AgentCard = ({ role, agentData, isLoading }) => {
   const iconBorderClass = isCompleted ? 'border-gray-700' : (isError ? 'border-red-900/50' : 'border-gray-800');
   const iconColorClass = isCompleted ? 'text-gray-300' : (isError ? 'text-red-400' : 'text-gray-500');
 
+  // The expand border highlight when expanded
+  const expandedBorderClass = isExpanded ? 'border-indigo-500/40' : borderClass;
+
   return (
-    <div className={`bg-gray-900 border ${borderClass} rounded-2xl p-5 flex flex-col transition-all duration-300 relative overflow-hidden group min-h-[21rem]`}>
+    <motion.div
+      layout
+      transition={{ layout: { duration: 0.4, ease: 'easeInOut' } }}
+      className={`bg-gray-900 border ${expandedBorderClass} rounded-2xl p-5 flex flex-col transition-colors duration-300 relative overflow-hidden group`}
+      style={{ minHeight: '21rem' }}
+    >
       <div className="flex items-start justify-between mb-4 relative z-10">
         <div className={`w-10 h-10 rounded-xl bg-gray-950 border ${iconBorderClass} flex items-center justify-center transition-colors`}>
           <Icon size={20} className={iconColorClass} />
@@ -101,7 +123,32 @@ const AgentCard = ({ role, agentData, isLoading }) => {
       </div>
 
       <div className="mt-auto relative z-10 flex-1 flex flex-col">
-        <h3 className={`font-medium text-sm transition-colors ${isCompleted ? 'text-gray-200' : 'text-gray-300'}`}>{role}</h3>
+        <div className="flex items-center justify-between">
+          <h3 className={`font-medium text-sm transition-colors ${isCompleted ? 'text-gray-200' : 'text-gray-300'}`}>{role}</h3>
+
+          {/* Expand / Collapse button — only for Backend Engineer when blueprint is available */}
+          {hasBlueprint && (
+            <motion.button
+              onClick={() => setIsExpanded((v) => !v)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 text-[10px] font-semibold uppercase tracking-wider hover:bg-indigo-500/20 transition-colors"
+              aria-label={isExpanded ? 'Collapse flowchart' : 'View flowchart'}
+            >
+              {isExpanded ? (
+                <>
+                  <ChevronUp size={11} />
+                  Collapse
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={11} />
+                  Flowchart
+                </>
+              )}
+            </motion.button>
+          )}
+        </div>
         
         <AnimatePresence mode="wait">
           {isCompleted || isError ? (
@@ -134,6 +181,40 @@ const AgentCard = ({ role, agentData, isLoading }) => {
         {(isThinking || isCompleted) && !isError && (
           <KanbanBoard status={localStatus} tasks={localTasks} role={role} />
         )}
+
+        {/* Flowchart Panel — only for Backend Engineer */}
+        <AnimatePresence>
+          {hasBlueprint && isExpanded && (
+            <motion.div
+              key="blueprint-panel"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.4, ease: 'easeInOut' }}
+              className="overflow-hidden mt-4"
+            >
+              {/* Divider */}
+              <div className="border-t border-indigo-500/20 mb-4" />
+
+              <div className="flex items-center gap-2 mb-3">
+                <Database size={12} className="text-indigo-400" />
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400">
+                  Architecture Flowchart
+                </span>
+              </div>
+
+              <Suspense
+                fallback={
+                  <div className="flex items-center justify-center h-64 text-gray-500 text-xs">
+                    Loading flowchart...
+                  </div>
+                }
+              >
+                <BackendBlueprint blueprint={agentData.blueprint} />
+              </Suspense>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Background effects based on state */}
@@ -146,7 +227,10 @@ const AgentCard = ({ role, agentData, isLoading }) => {
       {isError && (
         <div className="absolute inset-0 bg-red-500/5 z-0"></div>
       )}
-    </div>
+      {isExpanded && (
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/3 to-purple-500/3 z-0 pointer-events-none" />
+      )}
+    </motion.div>
   );
 };
 
