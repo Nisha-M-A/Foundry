@@ -27,3 +27,9 @@ export const duplicateProject = async (id) => {
   const { data } = await api.post(`/project/${id}/duplicate`);
   return data;
 };
+
+export const getProjectById = async (id) => {
+  const { data } = await api.get(`/project/${id}`);
+  return data;
+};
+

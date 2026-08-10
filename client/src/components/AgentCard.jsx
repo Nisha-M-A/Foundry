@@ -1,13 +1,8 @@
-import { User, Cpu, PenTool, Database, Clock, CheckCircle2, Loader2, AlertCircle, ChevronDown, ChevronUp, ExternalLink, X, Map, Workflow, Brain, Layout } from 'lucide-react';
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { User, Cpu, PenTool, Database, Clock, CheckCircle2, Loader2, AlertCircle, Workflow, Brain, Layout } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import KanbanBoard from './KanbanBoard';
-
-// Lazy-load heavy ReactFlow components only when needed
-const BackendBlueprint      = lazy(() => import('./BackendBlueprint'));
-const ProductMindMap        = lazy(() => import('./ProductMindMap'));
-const ArchitectureBlueprint = lazy(() => import('./ArchitectureBlueprint'));
-const UIDesignerBlueprint   = lazy(() => import('./UIDesignerBlueprint'));
 
 const icons = {
   'Product Manager': User,
@@ -23,20 +18,26 @@ const delays = {
   'Backend Engineer': 650,
 };
 
-const AgentCard = ({ role, agentData, isLoading }) => {
+// Map each role to its blueprint URL segment
+const blueprintRouteSegment = {
+  'Product Manager': 'product',
+  'System Architect': 'architecture',
+  'Backend Engineer': 'backend',
+  'UI Designer': 'ui',
+};
+
+const AgentCard = ({ role, agentData, isLoading, projectId }) => {
   const Icon = icons[role] || User;
-  const isBackendEngineer  = role === 'Backend Engineer';
-  const isProductManager   = role === 'Product Manager';
-  const isSystemArchitect  = role === 'System Architect';
-  const isUIDesigner       = role === 'UI Designer';
+  const isBackendEngineer = role === 'Backend Engineer';
+  const isProductManager  = role === 'Product Manager';
+  const isSystemArchitect = role === 'System Architect';
+  const isUIDesigner      = role === 'UI Designer';
+  const navigate = useNavigate();
 
   // Local states for stagger effect
   const [localStatus, setLocalStatus] = useState('idle'); // idle, thinking, completed, error
   const [localSummary, setLocalSummary] = useState('');
   const [localTasks, setLocalTasks] = useState([]);
-
-  // Expand state — only for Backend Engineer
-  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     let timer;
@@ -46,7 +47,6 @@ const AgentCard = ({ role, agentData, isLoading }) => {
         setLocalStatus('thinking');
         setLocalSummary('');
         setLocalTasks([]);
-        setIsExpanded(false); // collapse on new generation
       }, delay);
     } else if (agentData && (agentData.status === 'completed' || agentData.status === 'error')) {
       const delay = delays[role] || 0;
@@ -59,17 +59,16 @@ const AgentCard = ({ role, agentData, isLoading }) => {
       setLocalStatus('idle');
       setLocalSummary('');
       setLocalTasks([]);
-      setIsExpanded(false);
     }
-    
+
     return () => {
       if (timer) clearTimeout(timer);
     };
   }, [isLoading, agentData, role]);
 
   const isCompleted = localStatus === 'completed';
-  const isError = localStatus === 'error';
-  const isThinking = localStatus === 'thinking';
+  const isError     = localStatus === 'error';
+  const isThinking  = localStatus === 'thinking';
 
   const hasBlueprint =
     isBackendEngineer &&
@@ -96,6 +95,13 @@ const AgentCard = ({ role, agentData, isLoading }) => {
     agentData?.blueprint?.type === 'wireframe' &&
     Array.isArray(agentData?.blueprint?.screens) &&
     agentData.blueprint.screens.length > 0;
+
+  // Navigate to the dedicated blueprint page
+  const handleViewBlueprint = () => {
+    if (!projectId) return;
+    const segment = blueprintRouteSegment[role];
+    navigate(`/projects/${projectId}/blueprint/${segment}`);
+  };
 
   let statusUI;
   if (isCompleted) {
@@ -128,23 +134,17 @@ const AgentCard = ({ role, agentData, isLoading }) => {
     );
   }
 
-  const borderClass = isCompleted ? 'border-gray-700' : (isError ? 'border-red-900/50' : 'border-gray-800');
+  const borderClass     = isCompleted ? 'border-gray-700' : (isError ? 'border-red-900/50' : 'border-gray-800');
   const iconBorderClass = isCompleted ? 'border-gray-700' : (isError ? 'border-red-900/50' : 'border-gray-800');
+  const iconColorClass  = isCompleted ? 'text-gray-300' : (isError ? 'text-red-400' : 'text-gray-500');
 
-  // Any visualization can drive the expand state
   const hasVisualization = hasBlueprint || hasMindMap || hasArchitecture || hasWireframe;
-  const iconColorClass = isCompleted ? 'text-gray-300' : (isError ? 'text-red-400' : 'text-gray-500');
-
-  // Border highlight colour — teal for PM mind map, indigo for backend flowchart, cyan for architect diagram, pink for UI wireframe
-  const expandedBorderClass = isExpanded
-    ? (hasMindMap ? 'border-teal-500/40' : hasArchitecture ? 'border-cyan-500/40' : hasWireframe ? 'border-pink-500/40' : 'border-indigo-500/40')
-    : borderClass;
 
   return (
     <motion.div
       layout
       transition={{ layout: { duration: 0.4, ease: 'easeInOut' } }}
-      className={`bg-gray-900 border ${expandedBorderClass} rounded-2xl p-5 flex flex-col transition-colors duration-300 relative overflow-hidden group`}
+      className={`bg-gray-900 border ${borderClass} rounded-2xl p-5 flex flex-col transition-colors duration-300 relative overflow-hidden group`}
       style={{ minHeight: '21rem' }}
     >
       <div className="flex items-start justify-between mb-4 relative z-10">
@@ -158,104 +158,84 @@ const AgentCard = ({ role, agentData, isLoading }) => {
         <div className="flex items-center justify-between">
           <h3 className={`font-medium text-sm transition-colors ${isCompleted ? 'text-gray-200' : 'text-gray-300'}`}>{role}</h3>
 
-          {/* Open Blueprint — Backend Engineer */}
+          {/* View Blueprint — Backend Engineer */}
           {hasBlueprint && (
             <motion.button
-              onClick={() => setIsExpanded((v) => !v)}
+              onClick={handleViewBlueprint}
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all"
               style={{
-                background: isExpanded ? 'rgba(99,102,241,0.18)' : 'rgba(99,102,241,0.1)',
-                border: isExpanded ? '1px solid rgba(129,140,248,0.4)' : '1px solid rgba(99,102,241,0.25)',
-                color: isExpanded ? '#a5b4fc' : '#818cf8',
-                boxShadow: isExpanded ? '0 0 12px rgba(99,102,241,0.2)' : 'none',
+                background: 'rgba(99,102,241,0.1)',
+                border: '1px solid rgba(99,102,241,0.25)',
+                color: '#818cf8',
               }}
-              aria-label={isExpanded ? 'Close blueprint' : 'Open blueprint'}
+              aria-label="View backend blueprint"
             >
-              {isExpanded ? (
-                <><X size={11} strokeWidth={2.5} />Close</>
-              ) : (
-                <><Workflow size={11} strokeWidth={2.5} />View Blueprint</>
-              )}
+              <Workflow size={11} strokeWidth={2.5} />View Blueprint
             </motion.button>
           )}
 
-          {/* Open Mind Map — Product Manager */}
+          {/* View Blueprint — Product Manager */}
           {hasMindMap && (
             <motion.button
-              onClick={() => setIsExpanded((v) => !v)}
+              onClick={handleViewBlueprint}
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all"
               style={{
-                background: isExpanded ? 'rgba(45,212,191,0.15)' : 'rgba(45,212,191,0.08)',
-                border: isExpanded ? '1px solid rgba(45,212,191,0.45)' : '1px solid rgba(45,212,191,0.22)',
-                color: isExpanded ? '#5eead4' : '#2dd4bf',
-                boxShadow: isExpanded ? '0 0 12px rgba(45,212,191,0.18)' : 'none',
+                background: 'rgba(45,212,191,0.08)',
+                border: '1px solid rgba(45,212,191,0.22)',
+                color: '#2dd4bf',
               }}
-              aria-label={isExpanded ? 'Close mind map' : 'Open mind map'}
+              aria-label="View mind map blueprint"
             >
-              {isExpanded ? (
-                <><X size={11} strokeWidth={2.5} />Close</>
-              ) : (
-                <><Brain size={11} strokeWidth={2.5} />View Blueprint</>
-              )}
+              <Brain size={11} strokeWidth={2.5} />View Blueprint
             </motion.button>
           )}
 
-          {/* Open Architecture — System Architect */}
+          {/* View Blueprint — System Architect */}
           {hasArchitecture && (
             <motion.button
-              onClick={() => setIsExpanded((v) => !v)}
+              onClick={handleViewBlueprint}
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all"
               style={{
-                background: isExpanded ? 'rgba(6,182,212,0.15)' : 'rgba(6,182,212,0.08)',
-                border: isExpanded ? '1px solid rgba(6,182,212,0.45)' : '1px solid rgba(6,182,212,0.22)',
-                color: isExpanded ? '#67e8f9' : '#06b6d4',
-                boxShadow: isExpanded ? '0 0 12px rgba(6,182,212,0.18)' : 'none',
+                background: 'rgba(6,182,212,0.08)',
+                border: '1px solid rgba(6,182,212,0.22)',
+                color: '#06b6d4',
               }}
-              aria-label={isExpanded ? 'Close architecture' : 'Open architecture'}
+              aria-label="View architecture blueprint"
             >
-              {isExpanded ? (
-                <><X size={11} strokeWidth={2.5} />Close</>
-              ) : (
-                <><Cpu size={11} strokeWidth={2.5} />View Blueprint</>
-              )}
+              <Cpu size={11} strokeWidth={2.5} />View Blueprint
             </motion.button>
           )}
 
-          {/* Open Wireframe — UI Designer */}
+          {/* View Blueprint — UI Designer */}
           {hasWireframe && (
             <motion.button
-              onClick={() => setIsExpanded((v) => !v)}
+              onClick={handleViewBlueprint}
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all"
               style={{
-                background: isExpanded ? 'rgba(236,72,153,0.15)' : 'rgba(236,72,153,0.08)',
-                border: isExpanded ? '1px solid rgba(236,72,153,0.45)' : '1px solid rgba(236,72,153,0.22)',
-                color: isExpanded ? '#f472b6' : '#ec4899',
-                boxShadow: isExpanded ? '0 0 12px rgba(236,72,153,0.18)' : 'none',
+                background: 'rgba(236,72,153,0.08)',
+                border: '1px solid rgba(236,72,153,0.22)',
+                color: '#ec4899',
               }}
-              aria-label={isExpanded ? 'Close wireframes' : 'Open wireframes'}
+              aria-label="View wireframe blueprint"
             >
-              {isExpanded ? (
-                <><X size={11} strokeWidth={2.5} />Close</>
-              ) : (
-                <><Layout size={11} strokeWidth={2.5} />View Blueprint</>
-              )}
+              <Layout size={11} strokeWidth={2.5} />View Blueprint
             </motion.button>
           )}
         </div>
-        
+
         <AnimatePresence mode="wait">
           {isCompleted || isError ? (
             /* Hide summary when any visualization is present — it would be redundant */
             !hasVisualization && (
-              <motion.div 
+              <motion.div
                 key="summary"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -263,14 +243,14 @@ const AgentCard = ({ role, agentData, isLoading }) => {
                 className={`${isError ? 'text-red-400/80' : 'text-gray-400'} text-xs mt-1 line-clamp-3 leading-relaxed`}
               >
                 {typeof localSummary === 'object' && localSummary !== null ? (
-                  "Designs backend APIs, database, authentication, and business logic."
+                  'Designs backend APIs, database, authentication, and business logic.'
                 ) : (
                   localSummary
                 )}
               </motion.div>
             )
           ) : (
-            <motion.p 
+            <motion.p
               key="status-text"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -285,106 +265,6 @@ const AgentCard = ({ role, agentData, isLoading }) => {
         {(isThinking || isCompleted) && !isError && (
           <KanbanBoard status={localStatus} tasks={localTasks} role={role} />
         )}
-
-        {/* ── Backend Engineer Flowchart Panel ── */}
-        <AnimatePresence>
-          {hasBlueprint && isExpanded && (
-            <motion.div
-              key="blueprint-panel"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.4, ease: 'easeInOut' }}
-              className="overflow-hidden mt-4"
-            >
-              <div className="border-t border-indigo-500/20 mb-4" />
-              <div className="flex items-center gap-2 mb-3">
-                <Database size={12} className="text-indigo-400" />
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400">
-                  Architecture Flowchart
-                </span>
-              </div>
-              <Suspense fallback={<div className="flex items-center justify-center h-64 text-gray-500 text-xs">Loading flowchart...</div>}>
-                <BackendBlueprint blueprint={agentData.blueprint} />
-              </Suspense>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* ── Product Manager Mind Map Panel ── */}
-        <AnimatePresence>
-          {hasMindMap && isExpanded && (
-            <motion.div
-              key="mindmap-panel"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.4, ease: 'easeInOut' }}
-              className="overflow-hidden mt-4"
-            >
-              <div className="border-t border-teal-500/20 mb-4" />
-              <div className="flex items-center gap-2 mb-3">
-                <Map size={12} className="text-teal-400" />
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-teal-400">
-                  Strategy Mind Map
-                </span>
-              </div>
-              <Suspense fallback={<div className="flex items-center justify-center h-64 text-gray-500 text-xs">Loading mind map...</div>}>
-                <ProductMindMap blueprint={agentData.blueprint} />
-              </Suspense>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* ── System Architect Architecture Panel ── */}
-        <AnimatePresence>
-          {hasArchitecture && isExpanded && (
-            <motion.div
-              key="architecture-panel"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.4, ease: 'easeInOut' }}
-              className="overflow-hidden mt-4"
-            >
-              <div className="border-t border-cyan-500/20 mb-4" />
-              <div className="flex items-center gap-2 mb-3">
-                <Cpu size={12} className="text-cyan-400" />
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-cyan-400">
-                  System Architecture
-                </span>
-              </div>
-              <Suspense fallback={<div className="flex items-center justify-center h-64 text-gray-500 text-xs">Loading architecture...</div>}>
-                <ArchitectureBlueprint blueprint={agentData.blueprint} />
-              </Suspense>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* ── UI Designer Wireframe Panel ── */}
-        <AnimatePresence>
-          {hasWireframe && isExpanded && (
-            <motion.div
-              key="wireframe-panel"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.4, ease: 'easeInOut' }}
-              className="overflow-hidden mt-4"
-            >
-              <div className="border-t border-pink-500/20 mb-4" />
-              <div className="flex items-center gap-2 mb-3">
-                <PenTool size={12} className="text-pink-400" />
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-pink-400">
-                  Wireframe Board
-                </span>
-              </div>
-              <Suspense fallback={<div className="flex items-center justify-center h-64 text-gray-500 text-xs">Loading wireframes...</div>}>
-                <UIDesignerBlueprint blueprint={agentData.blueprint} />
-              </Suspense>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
       {/* Background effects based on state */}
@@ -396,18 +276,6 @@ const AgentCard = ({ role, agentData, isLoading }) => {
       )}
       {isError && (
         <div className="absolute inset-0 bg-red-500/5 z-0"></div>
-      )}
-      {isExpanded && !hasMindMap && !hasArchitecture && !hasWireframe && (
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/3 to-purple-500/3 z-0 pointer-events-none" />
-      )}
-      {isExpanded && hasMindMap && (
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/3 to-cyan-500/3 z-0 pointer-events-none" />
-      )}
-      {isExpanded && hasArchitecture && (
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/3 to-blue-500/3 z-0 pointer-events-none" />
-      )}
-      {isExpanded && hasWireframe && (
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-500/3 to-rose-500/3 z-0 pointer-events-none" />
       )}
     </motion.div>
   );

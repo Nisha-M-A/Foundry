@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import BlueprintPage from './pages/BlueprintPage';
 
 const App = () => {
   return (
@@ -16,6 +17,8 @@ const App = () => {
         {/* Protected routes */}
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          {/* Dedicated blueprint viewer pages */}
+          <Route path="/projects/:projectId/blueprint/:blueprintType" element={<BlueprintPage />} />
         </Route>
       </Routes>
     </AuthProvider>
@@ -23,4 +26,6 @@ const App = () => {
 };
 
 export default App;
+
+
 

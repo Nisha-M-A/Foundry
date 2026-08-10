@@ -104,6 +104,16 @@ const getProjects = async (req, res) => {
   }
 };
 
+const getProjectById = async (req, res) => {
+  try {
+    const project = await Project.findOne({ _id: req.params.id, owner: req.user.id });
+    if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
+    res.status(200).json({ success: true, project });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch project' });
+  }
+};
+
 const deleteProject = async (req, res) => {
   try {
     const project = await Project.findOneAndDelete({ _id: req.params.id, owner: req.user.id });
@@ -137,6 +147,7 @@ const duplicateProject = async (req, res) => {
 module.exports = {
   generateBlueprint,
   getProjects,
+  getProjectById,
   deleteProject,
   duplicateProject
 };
