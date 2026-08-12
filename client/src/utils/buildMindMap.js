@@ -42,9 +42,11 @@ export function buildMindMap(blueprint) {
   const branchCount  = blueprint.branches.length;
 
   // Radius from center → branch node (in px)
-  const BRANCH_RADIUS = branchCount <= 4 ? 320 : 380;
+  const BRANCH_RADIUS = branchCount <= 4 ? 350 : 420;
   // Radius from branch → child node
-  const CHILD_RADIUS  = 240;
+  const CHILD_RADIUS  = 280;
+  // Gap between sibling children
+  const CHILD_GAP     = 170;
 
   // ── Center node ───────────────────────────────────────────────
   nodes.push({
@@ -118,17 +120,11 @@ export function buildMindMap(blueprint) {
     const children = branch.children || [];
     if (children.length === 0) return;
 
-    // Fan spread: children fan around the branch's outward angle
-    const fanSpread  = Math.min(60, 50 + children.length * 5); // degrees total fan
-    const startAngle = angleDeg - fanSpread / 2;
-    const step       = children.length > 1 ? fanSpread / (children.length - 1) : 0;
-
     children.forEach((child, ci) => {
-      const childAngleDeg = children.length === 1 ? angleDeg : startAngle + step * ci;
-      const childRad  = toRad(childAngleDeg);
+      const offset = (ci - (children.length - 1) / 2) * CHILD_GAP;
 
-      const cx = bx + Math.cos(childRad) * CHILD_RADIUS;
-      const cy = by + Math.sin(childRad) * CHILD_RADIUS;
+      const cx = bx + Math.cos(angleRad) * CHILD_RADIUS + Math.cos(angleRad + Math.PI / 2) * offset;
+      const cy = by + Math.sin(angleRad) * CHILD_RADIUS + Math.sin(angleRad + Math.PI / 2) * offset;
 
       const childId = `child-${bi}-${ci}`;
 

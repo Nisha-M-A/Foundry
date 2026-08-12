@@ -113,9 +113,13 @@ const findPoint = (items, id) => items.find((item) => item.id === id);
 
 const mindMapSvg = (blueprint = {}) => {
   const branches = asArray(blueprint.branches);
-  const radius = branches.length <= 4 ? 215 : 250;
+  const branchCount = branches.length || 1;
+  const radius = branchCount <= 4 ? 350 : 420;
 
-  const maxSpan = radius + 220; // branch + child offset
+  const CHILD_RADIUS = 280;
+  const CHILD_GAP = 170;
+
+  const maxSpan = radius + CHILD_RADIUS + 150;
   const width = Math.max(1000, maxSpan * 2 + 100);
   const height = Math.max(660, maxSpan * 2 + 100);
   const cx = width / 2;
@@ -131,7 +135,8 @@ const mindMapSvg = (blueprint = {}) => {
   });
 
   branches.forEach((branch, index) => {
-    const angle = ((Math.PI * 2) / Math.max(branches.length, 1)) * index - Math.PI / 2;
+    const angleDeg = (360 / branchCount) * index - 90;
+    const angle = (angleDeg * Math.PI) / 180;
     const color = BRANCH_COLORS[index % BRANCH_COLORS.length];
     const bx = cx + Math.cos(angle) * radius;
     const by = cy + Math.sin(angle) * radius;
@@ -147,10 +152,11 @@ const mindMapSvg = (blueprint = {}) => {
       fill: '#0f172a',
     });
 
-    asArray(branch.children).slice(0, 3).forEach((child, childIndex) => {
-      const offset = (childIndex - (Math.min(asArray(branch.children).length, 3) - 1) / 2) * 70;
-      const childX = bx + Math.cos(angle) * 135 + Math.cos(angle + Math.PI / 2) * offset;
-      const childY = by + Math.sin(angle) * 135 + Math.sin(angle + Math.PI / 2) * offset;
+    const children = asArray(branch.children).slice(0, 5);
+    children.forEach((child, childIndex) => {
+      const offset = (childIndex - (children.length - 1) / 2) * CHILD_GAP;
+      const childX = bx + Math.cos(angle) * CHILD_RADIUS + Math.cos(angle + Math.PI / 2) * offset;
+      const childY = by + Math.sin(angle) * CHILD_RADIUS + Math.sin(angle + Math.PI / 2) * offset;
       body += lineSvg(bx, by, childX, childY, color);
       body += boxSvg({
         x: childX - 74,
