@@ -125,8 +125,8 @@ const WireframeNode = ({ id, data }) => {
                 transition={{ duration: 0.3, ease: 'easeOut' }}
                 style={{
                   position: 'absolute',
-                  top: 0,
-                  left: 'calc(100% + 16px)',
+                  top: 'calc(100% + 16px)',
+                  left: 0,
                   width: 320,
                   borderRadius: 12,
                   background: 'linear-gradient(150deg, rgba(30,30,36,0.95) 0%, rgba(18,18,22,0.98) 100%)',

@@ -29,6 +29,8 @@ export function buildWireframeLayout(blueprint) {
       id: screen.id,
       type: 'wireframeNode',
       position: { x: col * X_SPACING, y: row * Y_SPACING + yOffset },
+      width: 320,
+      height: 180,
       data: {
         title: screen.title,
         description: screen.description,

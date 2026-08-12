@@ -82,6 +82,7 @@ const MindMapInner = ({ blueprint }) => {
         return {
           ...n,
           hidden,
+          zIndex: n.id === expandedBranchId ? 50 : 1,
           data: { ...n.data, expandedBranchId, setExpandedBranchId },
         };
       }),

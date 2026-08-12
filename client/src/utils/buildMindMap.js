@@ -51,6 +51,8 @@ export function buildMindMap(blueprint) {
     id: 'center',
     type: 'mindMapNode',
     position: { x: -CENTER_W / 2, y: -CENTER_H / 2 },
+    width: CENTER_W,
+    height: CENTER_H,
     data: {
       label: blueprint.center,
       nodeKind: 'center',
@@ -77,6 +79,8 @@ export function buildMindMap(blueprint) {
       id: branchId,
       type: 'mindMapNode',
       position: { x: bx - BRANCH_W / 2, y: by - BRANCH_H / 2 },
+      width: BRANCH_W,
+      height: BRANCH_H,
       data: {
         label: branch.title,
         nodeKind: 'branch',
@@ -86,6 +90,7 @@ export function buildMindMap(blueprint) {
         description: branch.description || '',
         branchIndex: bi,
         childCount: (branch.children || []).length,
+        isLeft: Math.cos(angleRad) < -0.1,
       },
     });
 
@@ -131,6 +136,8 @@ export function buildMindMap(blueprint) {
         id: childId,
         type: 'mindMapNode',
         position: { x: cx - CHILD_W / 2, y: cy - CHILD_H / 2 },
+        width: CHILD_W,
+        height: CHILD_H,
         data: {
           label: child.title,
           nodeKind: 'child',

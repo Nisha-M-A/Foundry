@@ -112,12 +112,14 @@ const lineSvg = (x1, y1, x2, y2, color = '#64748b') =>
 const findPoint = (items, id) => items.find((item) => item.id === id);
 
 const mindMapSvg = (blueprint = {}) => {
-  const width = 1000;
-  const height = 660;
-  const cx = width / 2;
-  const cy = height / 2;
   const branches = asArray(blueprint.branches);
   const radius = branches.length <= 4 ? 215 : 250;
+
+  const maxSpan = radius + 220; // branch + child offset
+  const width = Math.max(1000, maxSpan * 2 + 100);
+  const height = Math.max(660, maxSpan * 2 + 100);
+  const cx = width / 2;
+  const cy = height / 2;
   let body = boxSvg({
     x: cx - 110,
     y: cy - 42,
@@ -402,8 +404,20 @@ const addPdfTextBlock = (pdf, text, x, y, options = {}) => {
   pdf.setFontSize(fontSize);
   pdf.setTextColor(...color);
   const lines = pdf.splitTextToSize(asText(text, 'Not available'), maxWidth);
-  pdf.text(lines, x, y);
-  return y + lines.length * lineHeight;
+
+  let currentY = y;
+  lines.forEach((line) => {
+    if (currentY + lineHeight > 770) {
+      pdf.addPage();
+      currentY = 54;
+      pdf.setFont('helvetica', font);
+      pdf.setFontSize(fontSize);
+      pdf.setTextColor(...color);
+    }
+    pdf.text(line, x, currentY);
+    currentY += lineHeight;
+  });
+  return currentY;
 };
 
 export const exportBlueprintPdf = async (project) => {
@@ -419,8 +433,8 @@ export const exportBlueprintPdf = async (project) => {
     }
   };
 
-  const heading = (label, level = 1, color = '#111827') => {
-    ensureSpace(level === 1 ? 82 : 48);
+  const heading = (label, level = 1, color = '#111827', extraSpace = 0) => {
+    ensureSpace((level === 1 ? 82 : 48) + extraSpace);
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(level === 1 ? 20 : 13);
     pdf.setTextColor(...rgbFromHex(color));
@@ -462,14 +476,14 @@ export const exportBlueprintPdf = async (project) => {
     heading(`${section.number} - ${section.title}`, 1, section.color);
 
     if (section.response?.summary) {
-      heading('Overview', 2, '#111827');
+      heading('Overview', 2, '#111827', 40);
       y = addPdfTextBlock(pdf, section.response.summary, margin, y, { maxWidth: contentWidth, lineHeight: 13 });
       y += 16;
     }
 
     const tasks = asArray(section.response?.tasks);
     if (tasks.length) {
-      heading('Key Tasks', 2, '#111827');
+      heading('Key Tasks', 2, '#111827', 40);
       tasks.forEach((task) => {
         ensureSpace(24);
         y = addPdfTextBlock(pdf, `- ${task}`, margin + 12, y, { maxWidth: contentWidth - 12, lineHeight: 12 });
@@ -483,19 +497,19 @@ export const exportBlueprintPdf = async (project) => {
     }
 
     if (section.blueprint) {
-      heading(section.diagramTitle, 2, '#111827');
       const image = await svgToPng(diagramSvg(section, section.blueprint));
       const naturalHeight = (image.height / image.width) * contentWidth;
       const imageHeight = Math.min(300, naturalHeight);
       const imageWidth = naturalHeight > 300 ? (image.width / image.height) * imageHeight : contentWidth;
-      ensureSpace(imageHeight + 28);
+      
+      heading(section.diagramTitle, 2, '#111827', imageHeight + 28);
       pdf.addImage(image.dataUrl, 'PNG', margin + (contentWidth - imageWidth) / 2, y, imageWidth, imageHeight, undefined, 'FAST');
       y += imageHeight + 28;
     }
 
     const details = detailItems(section, section.blueprint);
     if (details.length) {
-      heading(section.detailTitle, 2, '#111827');
+      heading(section.detailTitle, 2, '#111827', 62);
       details.forEach((item, index) => {
         ensureSpace(62);
         pdf.setFont('helvetica', 'bold');
@@ -535,6 +549,7 @@ const docHeading = (text, level = HeadingLevel.HEADING_1) =>
     text,
     heading: level,
     spacing: { before: 180, after: 160 },
+    keepNext: true,
   });
 
 const docBullet = (text) =>

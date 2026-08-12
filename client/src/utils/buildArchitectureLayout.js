@@ -46,7 +46,7 @@ function categorizeComponent(title = '') {
 
 const NODE_WIDTH = 260;
 const NODE_HEIGHT = 70; // collapsed height approx
-const LAYER_SPACING_X = 420;
+const LAYER_SPACING_X = 560;
 const NODE_SPACING_Y = 120;
 
 export function buildArchitectureLayout(blueprint) {
@@ -83,6 +83,8 @@ export function buildArchitectureLayout(blueprint) {
         id: comp.id,
         type: 'architectureNode',
         position: { x, y },
+        width: NODE_WIDTH,
+        height: NODE_HEIGHT,
         data: {
           title: comp.title,
           description: comp.description || '',

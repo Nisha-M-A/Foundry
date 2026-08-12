@@ -44,6 +44,7 @@ const ArchitectureInner = ({ blueprint }) => {
     () =>
       initialNodes.map((n) => ({
         ...n,
+        zIndex: n.id === expandedNodeId ? 50 : 1,
         data: {
           ...n.data,
           expandedNodeId,
@@ -60,6 +61,7 @@ const ArchitectureInner = ({ blueprint }) => {
     () =>
       nodes.map((n) => ({
         ...n,
+        zIndex: n.id === expandedNodeId ? 50 : 1,
         data: {
           ...n.data,
           expandedNodeId,

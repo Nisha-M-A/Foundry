@@ -50,6 +50,7 @@ const FlowInner = ({ blueprint }) => {
     () =>
       initialNodes.map((n) => ({
         ...n,
+        zIndex: n.id === expandedId ? 50 : 1,
         data: {
           ...n.data,
           expandedId,
@@ -67,6 +68,7 @@ const FlowInner = ({ blueprint }) => {
     () =>
       nodes.map((n) => ({
         ...n,
+        zIndex: n.id === expandedId ? 50 : 1,
         data: {
           ...n.data,
           expandedId,

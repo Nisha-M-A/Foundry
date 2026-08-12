@@ -32,6 +32,7 @@ const WireframeInner = ({ blueprint }) => {
     () =>
       initialNodes.map((n) => ({
         ...n,
+        zIndex: n.id === expandedNodeId ? 50 : 1,
         data: {
           ...n.data,
           expandedNodeId,
@@ -49,6 +50,7 @@ const WireframeInner = ({ blueprint }) => {
     () =>
       nodes.map((n) => ({
         ...n,
+        zIndex: n.id === expandedNodeId ? 50 : 1,
         data: {
           ...n.data,
           expandedNodeId,

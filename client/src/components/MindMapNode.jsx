@@ -39,6 +39,7 @@ const MindMapNode = ({ id, data }) => {
     childCount = 0,
     expandedBranchId,
     setExpandedBranchId,
+    isLeft,
   } = data;
 
   const isCenter = nodeKind === 'center';
@@ -270,7 +271,7 @@ const MindMapNode = ({ id, data }) => {
                 style={{
                   position: 'absolute',
                   top: 0,
-                  left: 'calc(100% + 12px)',
+                  ...(isLeft ? { right: 'calc(100% + 12px)' } : { left: 'calc(100% + 12px)' }),
                   width: 240,
                   borderRadius: 12,
                   background: `linear-gradient(145deg, rgba(17,14,50,0.95) 0%, rgba(10,8,35,0.98) 100%)`,
