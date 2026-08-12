@@ -4,6 +4,7 @@ import Sidebar from '../components/Sidebar';
 import PromptInput from '../components/PromptInput';
 import AgentCard from '../components/AgentCard';
 import HistoryDrawer from '../components/HistoryDrawer';
+import ExportBlueprintMenu from '../components/ExportBlueprintMenu';
 import { generateBlueprint, getProjects, deleteProject, duplicateProject } from '../api/project';
 import { AlertCircle } from 'lucide-react';
 
@@ -24,6 +25,8 @@ const Dashboard = () => {
     uiDesigner: null,
     backendEngineer: null,
   });
+
+  const currentProject = projects.find(project => project._id === currentProjectId) || null;
 
   useEffect(() => {
     fetchProjects();
@@ -172,6 +175,8 @@ const Dashboard = () => {
               {/* Bottom row: Backend Engineer — full width */}
               <AgentCard role="Backend Engineer" agentData={agents.backendEngineer} isLoading={isLoading} projectId={currentProjectId} />
             </div>
+
+            <ExportBlueprintMenu project={currentProject} />
           </div>
         </main>
 
