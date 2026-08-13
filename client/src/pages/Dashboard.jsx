@@ -4,6 +4,7 @@ import Sidebar from '../components/Sidebar';
 import PromptInput from '../components/PromptInput';
 import AgentCard from '../components/AgentCard';
 import HistoryDrawer from '../components/HistoryDrawer';
+import SettingsDrawer from '../components/SettingsDrawer';
 import ExportBlueprintMenu from '../components/ExportBlueprintMenu';
 import { generateBlueprint, getProjects, deleteProject, duplicateProject } from '../api/project';
 import { AlertCircle } from 'lucide-react';
@@ -11,6 +12,7 @@ import { AlertCircle } from 'lucide-react';
 const Dashboard = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   // History State
   const [projects, setProjects] = useState([]);
@@ -136,6 +138,7 @@ const Dashboard = () => {
           isCollapsed={isSidebarCollapsed} 
           setIsCollapsed={setIsSidebarCollapsed} 
           onOpenHistory={() => setIsHistoryOpen(true)}
+          onOpenSettings={() => setIsSettingsOpen(true)}
         />
         
         <main className="flex-1 flex flex-col items-center overflow-y-auto overflow-x-hidden p-6 md:p-10 lg:p-16 relative">
@@ -180,14 +183,19 @@ const Dashboard = () => {
           </div>
         </main>
 
-        <HistoryDrawer 
-          isOpen={isHistoryOpen} 
-          onClose={() => setIsHistoryOpen(false)} 
+        <HistoryDrawer
+          isOpen={isHistoryOpen}
+          onClose={() => setIsHistoryOpen(false)}
           projects={projects}
           onOpenProject={handleOpenProject}
           onDeleteProject={handleDeleteProject}
           onDuplicateProject={handleDuplicateProject}
           currentProjectId={currentProjectId}
+        />
+
+        <SettingsDrawer
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
         />
       </div>
     </div>

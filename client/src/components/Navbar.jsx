@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Moon, LogOut, User } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
+import { Moon, Sun, LogOut, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -35,8 +37,13 @@ const Navbar = () => {
       </div>
 
       <div className="flex items-center gap-4">
-        <button className="text-gray-400 hover:text-gray-200 transition-colors p-2 rounded-lg hover:bg-gray-800">
-          <Moon size={20} />
+        <button
+          onClick={toggleTheme}
+          className="text-gray-400 hover:text-gray-200 transition-colors p-2 rounded-lg hover:bg-gray-800"
+          aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {isDark ? <Sun size={20} /> : <Moon size={20} />}
         </button>
 
         <div className="relative" ref={menuRef}>

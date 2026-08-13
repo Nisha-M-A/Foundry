@@ -1,6 +1,6 @@
 import { Plus, Settings, History, ChevronLeft, ChevronRight, LayoutDashboard } from 'lucide-react';
 
-const Sidebar = ({ isCollapsed, setIsCollapsed, onOpenHistory }) => {
+const Sidebar = ({ isCollapsed, setIsCollapsed, onOpenHistory, onOpenSettings }) => {
   return (
     <aside
       className={`${
@@ -32,7 +32,10 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, onOpenHistory }) => {
         </div>
 
         <div className="mt-auto">
-          <button className="flex items-center gap-3 w-full p-2.5 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
+          <button
+            onClick={onOpenSettings}
+            className="flex items-center gap-3 w-full p-2.5 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
+          >
             <Settings size={20} className="shrink-0" />
             {!isCollapsed && <span className="text-sm font-medium whitespace-nowrap">Settings</span>}
           </button>
