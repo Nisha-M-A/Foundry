@@ -130,7 +130,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-950 overflow-hidden text-gray-200">
+    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-950 overflow-hidden text-gray-900 dark:text-gray-200 transition-colors duration-300">
       <Navbar />
 
       <div className="flex flex-1 overflow-hidden relative">
@@ -145,17 +145,17 @@ const Dashboard = () => {
           <div className="w-full max-w-5xl mx-auto flex flex-col gap-16 pb-20">
             {/* Header/Title Area */}
             <div className="text-center space-y-4 pt-10">
-              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+              <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
                 What are we building today?
               </h1>
-              <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+              <p className="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
                 Describe your app idea in plain English, and our specialized AI agents will create a complete blueprint.
               </p>
             </div>
 
             {/* Error Message Display */}
             {generationError && (
-              <div className="w-full max-w-4xl mx-auto bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl p-4 flex items-start gap-3">
+              <div className="w-full max-w-4xl mx-auto bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 rounded-xl p-4 flex items-start gap-3 shadow-sm">
                 <AlertCircle size={20} className="shrink-0 mt-0.5" />
                 <p className="text-sm">{generationError}</p>
               </div>
@@ -166,7 +166,7 @@ const Dashboard = () => {
 
             {/* Agents Grid */}
             <div className="w-full max-w-4xl mx-auto">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 px-1">
+              <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-500 uppercase tracking-wider mb-4 px-1">
                 Your AI Team
               </h3>
               {/* Top row: 3 agents */}

@@ -2,10 +2,12 @@ import { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutTemplate, Maximize2, Minimize2, Frame, CheckCircle2 } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 const WireframeNode = ({ id, data }) => {
   const { title, description, components = [], expandedNodeId, setExpandedNodeId, screenIndex } = data;
   const isExpanded = expandedNodeId === id;
+  const { isDark } = useTheme();
 
   const toggle = () => setExpandedNodeId(isExpanded ? null : id);
 
@@ -39,31 +41,49 @@ const WireframeNode = ({ id, data }) => {
         style={{
           cursor: 'pointer',
           borderRadius: 12,
-          background: isExpanded
-            ? 'linear-gradient(150deg, rgba(30,30,36,0.95) 0%, rgba(18,18,22,0.98) 100%)'
-            : 'linear-gradient(150deg, rgba(40,40,46,0.85) 0%, rgba(20,20,25,0.9) 100%)',
-          border: isExpanded 
-            ? `1px solid ${accentColor}60` 
-            : '1px solid rgba(255,255,255,0.08)',
+          background: isDark ? (
+            isExpanded
+              ? 'linear-gradient(150deg, rgba(30,30,36,0.95) 0%, rgba(18,18,22,0.98) 100%)'
+              : 'linear-gradient(150deg, rgba(40,40,46,0.85) 0%, rgba(20,20,25,0.9) 100%)'
+          ) : (
+            isExpanded
+              ? 'linear-gradient(150deg, #ffffff 0%, #f8fafc 100%)'
+              : '#ffffff'
+          ),
+          border: isDark ? (
+            isExpanded 
+              ? `1px solid ${accentColor}60` 
+              : '1px solid rgba(255,255,255,0.08)'
+          ) : (
+            isExpanded 
+              ? `1px solid ${accentColor}60` 
+              : '1px solid rgba(0,0,0,0.08)'
+          ),
           backdropFilter: 'blur(20px)',
-          boxShadow: isExpanded
-            ? `0 0 0 1px ${accentColor}30, 0 16px 40px rgba(0,0,0,0.7), 0 0 24px ${glowColor}`
-            : '0 8px 24px rgba(0,0,0,0.6)',
+          boxShadow: isDark ? (
+            isExpanded
+              ? `0 0 0 1px ${accentColor}30, 0 16px 40px rgba(0,0,0,0.7), 0 0 24px ${glowColor}`
+              : '0 8px 24px rgba(0,0,0,0.6)'
+          ) : (
+            isExpanded
+              ? `0 0 0 1px ${accentColor}15, 0 16px 30px rgba(0,0,0,0.1), 0 0 20px ${glowColor.replace('0.3', '0.15')}`
+              : '0 4px 12px rgba(0,0,0,0.06)'
+          ),
         }}
       >
         {/* Figma-like screen header */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '8px 14px', background: 'rgba(0,0,0,0.3)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)'
+          padding: '8px 14px', background: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.03)',
+          borderBottom: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.05)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Frame size={13} style={{ color: 'rgba(148,163,184,0.7)' }} />
-            <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(148,163,184,0.7)', letterSpacing: '0.05em' }}>
+            <Frame size={13} style={{ color: isDark ? 'rgba(148,163,184,0.7)' : 'rgba(100,116,139,0.8)' }} />
+            <span style={{ fontSize: 10, fontWeight: 600, color: isDark ? 'rgba(148,163,184,0.7)' : 'rgba(100,116,139,0.8)', letterSpacing: '0.05em' }}>
               Screen {screenIndex + 1}
             </span>
           </div>
-          <div style={{ color: isExpanded ? accentColor : 'rgba(148,163,184,0.5)' }}>
+          <div style={{ color: isExpanded ? accentColor : (isDark ? 'rgba(148,163,184,0.5)' : 'rgba(100,116,139,0.6)') }}>
             {isExpanded ? <Minimize2 size={12} strokeWidth={2.5} /> : <Maximize2 size={12} strokeWidth={2.5} />}
           </div>
         </div>
@@ -73,16 +93,16 @@ const WireframeNode = ({ id, data }) => {
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 16 }}>
             <div style={{
               flexShrink: 0, width: 36, height: 36, borderRadius: 8,
-              background: bgColor, border: `1px solid ${accentColor}40`,
+              background: isDark ? bgColor : bgColor.replace('0.1', '0.05'), border: `1px solid ${accentColor}40`,
               display: 'flex', alignItems: 'center', justifyContent: 'center', color: accentColor
             }}>
               <LayoutTemplate size={18} strokeWidth={2} />
             </div>
             <div>
-              <h4 style={{ margin: '0 0 4px 0', fontSize: 15, fontWeight: 600, color: '#f8fafc', letterSpacing: '0.01em' }}>
+              <h4 style={{ margin: '0 0 4px 0', fontSize: 15, fontWeight: 600, color: isDark ? '#f8fafc' : '#1e293b', letterSpacing: '0.01em' }}>
                 {title}
               </h4>
-              <p style={{ margin: 0, fontSize: 11, color: 'rgba(148,163,184,0.85)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: isExpanded ? 'unset' : 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+              <p style={{ margin: 0, fontSize: 11, color: isDark ? 'rgba(148,163,184,0.85)' : 'rgba(71,85,105,0.9)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: isExpanded ? 'unset' : 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                 {description}
               </p>
             </div>
@@ -90,24 +110,24 @@ const WireframeNode = ({ id, data }) => {
 
           {/* Low-Fidelity Visual Wireframe blocks */}
           <div style={{
-            background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)',
+            background: isDark ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.02)', border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)',
             borderRadius: 8, padding: 8, display: 'flex', flexDirection: 'column', gap: 6,
             marginBottom: isExpanded ? 16 : 0
           }}>
             {/* Header wireframe */}
-            <div style={{ height: 12, background: 'rgba(255,255,255,0.1)', borderRadius: 4, width: '100%' }} />
+            <div style={{ height: 12, background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', borderRadius: 4, width: '100%' }} />
             
             <div style={{ display: 'flex', gap: 6 }}>
               {/* Sidebar wireframe */}
               {title.toLowerCase().includes('dashboard') || title.toLowerCase().includes('workspace') ? (
-                <div style={{ height: 40, background: 'rgba(255,255,255,0.05)', borderRadius: 4, width: '25%' }} />
+                <div style={{ height: 40, background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', borderRadius: 4, width: '25%' }} />
               ) : null}
               
               {/* Content body wireframe */}
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <div style={{ height: 8, background: 'rgba(255,255,255,0.08)', borderRadius: 3, width: '70%' }} />
-                <div style={{ height: 8, background: 'rgba(255,255,255,0.05)', borderRadius: 3, width: '90%' }} />
-                <div style={{ height: 16, background: 'rgba(236,72,153,0.15)', border: `1px dashed ${accentColor}50`, borderRadius: 4, width: '100%', marginTop: 2 }} />
+                <div style={{ height: 8, background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)', borderRadius: 3, width: '70%' }} />
+                <div style={{ height: 8, background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', borderRadius: 3, width: '90%' }} />
+                <div style={{ height: 16, background: isDark ? 'rgba(236,72,153,0.15)' : 'rgba(236,72,153,0.08)', border: `1px dashed ${accentColor}50`, borderRadius: 4, width: '100%', marginTop: 2 }} />
               </div>
             </div>
           </div>
@@ -129,10 +149,10 @@ const WireframeNode = ({ id, data }) => {
                   left: 0,
                   width: 320,
                   borderRadius: 12,
-                  background: 'linear-gradient(150deg, rgba(30,30,36,0.95) 0%, rgba(18,18,22,0.98) 100%)',
-                  border: `1px solid ${accentColor}60`,
+                  background: isDark ? 'linear-gradient(150deg, rgba(30,30,36,0.95) 0%, rgba(18,18,22,0.98) 100%)' : '#ffffff',
+                  border: isDark ? `1px solid ${accentColor}60` : `1px solid ${accentColor}40`,
                   backdropFilter: 'blur(20px)',
-                  boxShadow: `0 16px 40px rgba(0,0,0,0.7), 0 0 24px ${glowColor}`,
+                  boxShadow: isDark ? `0 16px 40px rgba(0,0,0,0.7), 0 0 24px ${glowColor}` : `0 8px 30px rgba(0,0,0,0.1), 0 0 15px ${glowColor.replace('0.3', '0.15')}`,
                   zIndex: 50,
                   overflow: 'hidden',
                   padding: '16px'
@@ -149,8 +169,8 @@ const WireframeNode = ({ id, data }) => {
                     <div key={i} style={{ display: 'flex', gap: 8 }}>
                       <CheckCircle2 size={12} style={{ color: accentColor, flexShrink: 0, marginTop: 2 }} strokeWidth={2.5} />
                       <div>
-                        <div style={{ fontSize: 11.5, fontWeight: 600, color: '#e2e8f0', marginBottom: 2 }}>{comp.title}</div>
-                        <div style={{ fontSize: 10.5, color: '#94a3b8', lineHeight: 1.4 }}>{comp.description}</div>
+                        <div style={{ fontSize: 11.5, fontWeight: 600, color: isDark ? '#e2e8f0' : '#334155', marginBottom: 2 }}>{comp.title}</div>
+                        <div style={{ fontSize: 10.5, color: isDark ? '#94a3b8' : '#64748b', lineHeight: 1.4 }}>{comp.description}</div>
                       </div>
                     </div>
                   ))}

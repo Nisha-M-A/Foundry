@@ -106,37 +106,37 @@ const AgentCard = ({ role, agentData, isLoading, projectId }) => {
   let statusUI;
   if (isCompleted) {
     statusUI = (
-      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-        <CheckCircle2 size={12} className="text-emerald-400" />
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400">Done</span>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
+        <CheckCircle2 size={12} className="text-emerald-600 dark:text-emerald-400" />
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Done</span>
       </div>
     );
   } else if (isError) {
     statusUI = (
-      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 border border-red-500/20">
-        <AlertCircle size={12} className="text-red-400" />
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-red-400">Error</span>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20">
+        <AlertCircle size={12} className="text-red-600 dark:text-red-400" />
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">Error</span>
       </div>
     );
   } else if (isThinking) {
     statusUI = (
-      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20">
-        <Loader2 size={12} className="text-indigo-400 animate-spin" />
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400">Thinking</span>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20">
+        <Loader2 size={12} className="text-indigo-600 dark:text-indigo-400 animate-spin" />
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Thinking</span>
       </div>
     );
   } else {
     statusUI = (
-      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-950 border border-gray-800">
+      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-950 border border-gray-200 dark:border-gray-800">
         <Clock size={12} className="text-gray-500" />
         <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">Idle</span>
       </div>
     );
   }
 
-  const borderClass     = isCompleted ? 'border-gray-700' : (isError ? 'border-red-900/50' : 'border-gray-800');
-  const iconBorderClass = isCompleted ? 'border-gray-700' : (isError ? 'border-red-900/50' : 'border-gray-800');
-  const iconColorClass  = isCompleted ? 'text-gray-300' : (isError ? 'text-red-400' : 'text-gray-500');
+  const borderClass     = isCompleted ? 'border-gray-200 dark:border-gray-700' : (isError ? 'border-red-300 dark:border-red-900/50' : 'border-gray-200 dark:border-gray-800');
+  const iconBorderClass = isCompleted ? 'border-gray-200 dark:border-gray-700' : (isError ? 'border-red-300 dark:border-red-900/50' : 'border-gray-200 dark:border-gray-800');
+  const iconColorClass  = isCompleted ? 'text-gray-600 dark:text-gray-300' : (isError ? 'text-red-500 dark:text-red-400' : 'text-gray-400 dark:text-gray-500');
 
   const hasVisualization = hasBlueprint || hasMindMap || hasArchitecture || hasWireframe;
 
@@ -144,11 +144,11 @@ const AgentCard = ({ role, agentData, isLoading, projectId }) => {
     <motion.div
       layout
       transition={{ layout: { duration: 0.4, ease: 'easeInOut' } }}
-      className={`bg-gray-900 border ${borderClass} rounded-2xl p-5 flex flex-col transition-colors duration-300 relative overflow-hidden group`}
+      className={`bg-white dark:bg-gray-900 border ${borderClass} rounded-2xl p-5 flex flex-col transition-colors duration-300 relative overflow-hidden group shadow-sm`}
       style={{ minHeight: '21rem' }}
     >
       <div className="flex items-start justify-between mb-4 relative z-10">
-        <div className={`w-10 h-10 rounded-xl bg-gray-950 border ${iconBorderClass} flex items-center justify-center transition-colors`}>
+        <div className={`w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-950 border ${iconBorderClass} flex items-center justify-center transition-colors`}>
           <Icon size={20} className={iconColorClass} />
         </div>
         {statusUI}
@@ -156,7 +156,7 @@ const AgentCard = ({ role, agentData, isLoading, projectId }) => {
 
       <div className="mt-auto relative z-10 flex-1 flex flex-col">
         <div className="flex items-center justify-between">
-          <h3 className={`font-medium text-sm transition-colors ${isCompleted ? 'text-gray-200' : 'text-gray-300'}`}>{role}</h3>
+          <h3 className={`font-medium text-sm transition-colors ${isCompleted ? 'text-gray-900 dark:text-gray-200' : 'text-gray-500 dark:text-gray-300'}`}>{role}</h3>
 
           {/* View Blueprint — Backend Engineer */}
           {hasBlueprint && (
@@ -240,7 +240,7 @@ const AgentCard = ({ role, agentData, isLoading, projectId }) => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
-                className={`${isError ? 'text-red-400/80' : 'text-gray-400'} text-xs mt-1 line-clamp-3 leading-relaxed`}
+                className={`${isError ? 'text-red-500 dark:text-red-400/80' : 'text-gray-500 dark:text-gray-400'} text-xs mt-1 line-clamp-3 leading-relaxed`}
               >
                 {typeof localSummary === 'object' && localSummary !== null ? (
                   'Designs backend APIs, database, authentication, and business logic.'
@@ -255,7 +255,7 @@ const AgentCard = ({ role, agentData, isLoading, projectId }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-gray-600 text-xs mt-1"
+              className="text-gray-400 dark:text-gray-600 text-xs mt-1"
             >
               {isThinking ? 'Analyzing prompt...' : 'Waiting for prompt...'}
             </motion.p>
@@ -269,7 +269,7 @@ const AgentCard = ({ role, agentData, isLoading, projectId }) => {
 
       {/* Background effects based on state */}
       {!isCompleted && !isThinking && !isError && (
-        <div className="absolute inset-0 bg-gray-950/20 z-0"></div>
+        <div className="absolute inset-0 bg-gray-50/50 dark:bg-gray-950/20 z-0"></div>
       )}
       {isThinking && (
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 z-0 animate-pulse"></div>

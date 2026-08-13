@@ -19,6 +19,7 @@ import {
   ArrowRightLeft,
   Cloud,
 } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 /**
  * Maps node title keywords → icon component + accent colour.
@@ -74,6 +75,7 @@ function resolveNodeMeta(title = '', index = 0) {
 const FlowNode = ({ id, data }) => {
   const isExpanded = data.expandedId === id;
   const { icon: Icon, color, glow } = resolveNodeMeta(data.title, data.nodeIndex ?? 0);
+  const { isDark } = useTheme();
 
   const toggle = () => data.setExpandedId(isExpanded ? null : id);
 
@@ -104,17 +106,35 @@ const FlowNode = ({ id, data }) => {
         style={{
           cursor: 'pointer',
           borderRadius: 16,
-          background: isExpanded
-            ? 'linear-gradient(150deg, rgba(30,27,75,0.95) 0%, rgba(20,18,60,0.98) 100%)'
-            : 'linear-gradient(150deg, rgba(20,18,55,0.92) 0%, rgba(13,11,40,0.96) 100%)',
-          border: isExpanded
-            ? `1px solid ${color}55`
-            : '1px solid rgba(99,102,241,0.18)',
+          background: isDark ? (
+            isExpanded
+              ? 'linear-gradient(150deg, rgba(30,27,75,0.95) 0%, rgba(20,18,60,0.98) 100%)'
+              : 'linear-gradient(150deg, rgba(20,18,55,0.92) 0%, rgba(13,11,40,0.96) 100%)'
+          ) : (
+            isExpanded
+              ? 'linear-gradient(150deg, #ffffff 0%, #f8fafc 100%)'
+              : '#ffffff'
+          ),
+          border: isDark ? (
+            isExpanded
+              ? `1px solid ${color}55`
+              : '1px solid rgba(99,102,241,0.18)'
+          ) : (
+            isExpanded
+              ? `1px solid ${color}55`
+              : '1px solid rgba(0,0,0,0.06)'
+          ),
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
-          boxShadow: isExpanded
-            ? `0 0 0 1px ${color}30, 0 12px 40px rgba(0,0,0,0.6), 0 0 24px ${glow}`
-            : '0 4px 16px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,102,241,0.08)',
+          boxShadow: isDark ? (
+            isExpanded
+              ? `0 0 0 1px ${color}30, 0 12px 40px rgba(0,0,0,0.6), 0 0 24px ${glow}`
+              : '0 4px 16px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,102,241,0.08)'
+          ) : (
+            isExpanded
+              ? `0 0 0 1px ${color}15, 0 12px 30px rgba(0,0,0,0.1), 0 0 24px ${glow.replace('0.25', '0.1')}`
+              : '0 2px 8px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.02)'
+          ),
           transition: 'box-shadow 0.3s ease, border-color 0.3s ease',
         }}
       >
@@ -135,7 +155,7 @@ const FlowNode = ({ id, data }) => {
               width: 34,
               height: 34,
               borderRadius: 10,
-              background: `${color}18`,
+              background: isDark ? `${color}18` : `${color}10`,
               border: `1px solid ${color}35`,
               display: 'flex',
               alignItems: 'center',
@@ -153,7 +173,7 @@ const FlowNode = ({ id, data }) => {
               style={{
                 fontSize: 12.5,
                 fontWeight: 650,
-                color: isExpanded ? '#e0e7ff' : '#c7d2fe',
+                color: isDark ? (isExpanded ? '#e0e7ff' : '#c7d2fe') : (isExpanded ? '#1e293b' : '#334155'),
                 lineHeight: 1.3,
                 letterSpacing: '0.008em',
                 overflow: 'hidden',
@@ -169,7 +189,7 @@ const FlowNode = ({ id, data }) => {
               <div
                 style={{
                   fontSize: 10.5,
-                  color: 'rgba(148,163,184,0.75)',
+                  color: isDark ? 'rgba(148,163,184,0.75)' : 'rgba(100,116,139,0.85)',
                   lineHeight: 1.4,
                   overflow: 'hidden',
                   display: '-webkit-box',
@@ -189,12 +209,12 @@ const FlowNode = ({ id, data }) => {
               width: 22,
               height: 22,
               borderRadius: 7,
-              background: isExpanded ? `${color}25` : 'rgba(99,102,241,0.08)',
-              border: `1px solid ${isExpanded ? color + '40' : 'rgba(99,102,241,0.18)'}`,
+              background: isExpanded ? `${color}25` : (isDark ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.03)'),
+              border: `1px solid ${isExpanded ? color + '40' : (isDark ? 'rgba(99,102,241,0.18)' : 'rgba(0,0,0,0.06)')}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: isExpanded ? color : 'rgba(99,102,241,0.7)',
+              color: isExpanded ? color : (isDark ? 'rgba(99,102,241,0.7)' : 'rgba(100,116,139,0.8)'),
               transition: 'all 0.2s ease',
             }}
           >
@@ -222,11 +242,11 @@ const FlowNode = ({ id, data }) => {
                 width: 300,
                 marginTop: 8,
                 borderRadius: 16,
-                background: 'linear-gradient(150deg, rgba(30,27,75,0.95) 0%, rgba(20,18,60,0.98) 100%)',
+                background: isDark ? 'linear-gradient(150deg, rgba(30,27,75,0.95) 0%, rgba(20,18,60,0.98) 100%)' : '#ffffff',
                 border: `1px solid ${color}55`,
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',
-                boxShadow: `0 12px 40px rgba(0,0,0,0.8), 0 0 24px ${glow}`,
+                boxShadow: isDark ? `0 12px 40px rgba(0,0,0,0.8), 0 0 24px ${glow}` : `0 8px 30px rgba(0,0,0,0.15), 0 0 15px ${glow.replace('0.25', '0.1')}`,
                 overflow: 'hidden',
                 zIndex: 50,
               }}
@@ -281,7 +301,7 @@ const FlowNode = ({ id, data }) => {
                         alignItems: 'flex-start',
                         gap: 8,
                         fontSize: 11,
-                        color: 'rgba(148,163,184,0.9)',
+                        color: isDark ? 'rgba(148,163,184,0.9)' : 'rgba(51,65,85,0.9)',
                         lineHeight: 1.45,
                       }}
                     >

@@ -13,6 +13,7 @@ import { motion } from 'framer-motion';
 import { buildArchitectureLayout, ARCH_COLORS } from '../utils/buildArchitectureLayout';
 import ArchitectureNode from './ArchitectureNode';
 import { Maximize2, Server } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 const nodeTypes = { architectureNode: ArchitectureNode };
 
@@ -34,6 +35,7 @@ const ArchEdgeGradientDefs = () => (
 const ArchitectureInner = ({ blueprint }) => {
   const [expandedNodeId, setExpandedNodeId] = useState(null);
   const { fitView } = useReactFlow();
+  const { isDark } = useTheme();
 
   const { nodes: initialNodes, edges: initialEdges } = useMemo(
     () => buildArchitectureLayout(blueprint),
@@ -78,7 +80,7 @@ const ArchitectureInner = ({ blueprint }) => {
 
   if (!blueprint?.components?.length) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300, color: 'rgba(6,182,212,0.4)', fontSize: 13, gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300, color: isDark ? 'rgba(6,182,212,0.4)' : 'rgba(6,182,212,0.6)', fontSize: 13, gap: 8 }}>
         <Server size={16} /> No architecture data available.
       </div>
     );
@@ -105,7 +107,7 @@ const ArchitectureInner = ({ blueprint }) => {
 
         <Controls
           showInteractive={false}
-          style={{ background: 'rgba(15,23,42,0.92)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: 10, padding: 4, boxShadow: '0 4px 16px rgba(0,0,0,0.5)', bottom: 16, left: 16 }}
+          style={{ background: isDark ? 'rgba(15,23,42,0.92)' : 'rgba(255,255,255,0.92)', border: `1px solid ${isDark ? 'rgba(6,182,212,0.2)' : 'rgba(6,182,212,0.4)'}`, borderRadius: 10, padding: 4, boxShadow: '0 4px 16px rgba(0,0,0,0.5)', bottom: 16, left: 16 }}
         />
       </ReactFlow>
 
@@ -114,12 +116,12 @@ const ArchitectureInner = ({ blueprint }) => {
         title="Fit to view"
         style={{
           position: 'absolute', top: 12, right: 12, zIndex: 10, width: 30, height: 30, borderRadius: 8,
-          background: 'rgba(15,23,42,0.92)', border: '1px solid rgba(6,182,212,0.25)', color: 'rgba(6,182,212,0.8)',
+          background: isDark ? 'rgba(15,23,42,0.92)' : 'rgba(255,255,255,0.92)', border: `1px solid ${isDark ? 'rgba(6,182,212,0.25)' : 'rgba(6,182,212,0.4)'}`, color: isDark ? 'rgba(6,182,212,0.8)' : 'rgba(8,145,178,0.8)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
           boxShadow: '0 2px 10px rgba(0,0,0,0.5)', transition: 'background 0.2s, color 0.2s',
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(6,182,212,0.2)'; e.currentTarget.style.color = '#cffafe'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(15,23,42,0.92)'; e.currentTarget.style.color = 'rgba(6,182,212,0.8)'; }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? 'rgba(6,182,212,0.2)' : 'rgba(6,182,212,0.1)'; e.currentTarget.style.color = isDark ? '#cffafe' : '#0891b2'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? 'rgba(15,23,42,0.92)' : 'rgba(255,255,255,0.92)'; e.currentTarget.style.color = isDark ? 'rgba(6,182,212,0.8)' : 'rgba(8,145,178,0.8)'; }}
       >
         <Maximize2 size={13} strokeWidth={2} />
       </button>
@@ -130,6 +132,7 @@ const ArchitectureInner = ({ blueprint }) => {
 const ArchitectureBlueprint = ({ blueprint }) => {
   const componentCount = blueprint?.components?.length ?? 0;
   const connectionCount = blueprint?.connections?.length ?? 0;
+  const { isDark } = useTheme();
 
   return (
     <motion.div
@@ -138,15 +141,15 @@ const ArchitectureBlueprint = ({ blueprint }) => {
       transition={{ duration: 0.45, ease: [0.33, 1, 0.68, 1] }}
       style={{
         width: '100%', borderRadius: 16, overflow: 'hidden',
-        background: 'linear-gradient(160deg, rgba(15,23,42,0.98) 0%, rgba(9,14,23,0.99) 100%)',
-        border: '1px solid rgba(6,182,212,0.2)',
-        boxShadow: '0 0 0 1px rgba(6,182,212,0.06), 0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)',
+        background: isDark ? 'linear-gradient(160deg, rgba(15,23,42,0.98) 0%, rgba(9,14,23,0.99) 100%)' : '#ffffff',
+        border: `1px solid ${isDark ? 'rgba(6,182,212,0.2)' : 'rgba(6,182,212,0.3)'}`,
+        boxShadow: isDark ? '0 0 0 1px rgba(6,182,212,0.06), 0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)' : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderBottom: '1px solid rgba(6,182,212,0.15)', background: 'rgba(6,182,212,0.05)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderBottom: `1px solid ${isDark ? 'rgba(6,182,212,0.15)' : 'rgba(6,182,212,0.2)'}`, background: isDark ? 'rgba(6,182,212,0.05)' : 'rgba(6,182,212,0.08)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#06b6d4', boxShadow: '0 0 8px rgba(6,182,212,0.8)' }} />
-          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(6,182,212,0.85)' }}>
+          <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: isDark ? 'rgba(6,182,212,0.85)' : 'rgba(8,145,178,1)' }}>
             System Architecture
           </span>
         </div>
@@ -155,8 +158,8 @@ const ArchitectureBlueprint = ({ blueprint }) => {
             { label: 'Components', value: componentCount },
             { label: 'Connections', value: connectionCount },
           ].map(({ label, value }) => (
-            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: 'rgba(148,163,184,0.6)' }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(6,182,212,0.8)' }}>{value}</span>
+            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: isDark ? 'rgba(148,163,184,0.6)' : 'rgba(100,116,139,0.8)' }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: isDark ? 'rgba(6,182,212,0.8)' : 'rgba(8,145,178,0.9)' }}>{value}</span>
               {label}
             </div>
           ))}

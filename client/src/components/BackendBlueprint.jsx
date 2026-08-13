@@ -13,6 +13,7 @@ import { motion } from 'framer-motion';
 import { buildFlowchart } from '../utils/buildFlowchart';
 import FlowNode from './FlowNode';
 import { Maximize2, GitBranch } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 const nodeTypes = { flowNode: FlowNode };
 
@@ -38,6 +39,7 @@ const EdgeGradientDefs = () => (
 const FlowInner = ({ blueprint }) => {
   const [expandedId, setExpandedId] = useState(null);
   const { fitView } = useReactFlow();
+  const { isDark } = useTheme();
 
   // Build initial nodes & edges from blueprint
   const { nodes: initialNodes, edges: initialEdges } = useMemo(
@@ -93,7 +95,7 @@ const FlowInner = ({ blueprint }) => {
           alignItems: 'center',
           justifyContent: 'center',
           height: 300,
-          color: 'rgba(99,102,241,0.4)',
+          color: isDark ? 'rgba(99,102,241,0.4)' : 'rgba(99,102,241,0.6)',
           fontSize: 13,
           fontFamily: "'Inter', system-ui, sans-serif",
           gap: 8,
@@ -152,8 +154,8 @@ const FlowInner = ({ blueprint }) => {
             display: 'flex',
             flexDirection: 'column',
             gap: 2,
-            background: 'rgba(13,11,40,0.92)',
-            border: '1px solid rgba(99,102,241,0.2)',
+            background: isDark ? 'rgba(13,11,40,0.92)' : 'rgba(255,255,255,0.92)',
+            border: `1px solid ${isDark ? 'rgba(99,102,241,0.2)' : 'rgba(99,102,241,0.4)'}`,
             borderRadius: 10,
             padding: 4,
             boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
@@ -175,9 +177,9 @@ const FlowInner = ({ blueprint }) => {
           width: 30,
           height: 30,
           borderRadius: 8,
-          background: 'rgba(13,11,40,0.92)',
-          border: '1px solid rgba(99,102,241,0.22)',
-          color: 'rgba(129,140,248,0.8)',
+          background: isDark ? 'rgba(13,11,40,0.92)' : 'rgba(255,255,255,0.92)',
+          border: `1px solid ${isDark ? 'rgba(99,102,241,0.22)' : 'rgba(99,102,241,0.4)'}`,
+          color: isDark ? 'rgba(129,140,248,0.8)' : 'rgba(99,102,241,0.8)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -186,12 +188,12 @@ const FlowInner = ({ blueprint }) => {
           transition: 'background 0.2s, color 0.2s',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'rgba(99,102,241,0.2)';
-          e.currentTarget.style.color = '#a5b4fc';
+          e.currentTarget.style.background = isDark ? 'rgba(99,102,241,0.2)' : 'rgba(99,102,241,0.1)';
+          e.currentTarget.style.color = isDark ? '#a5b4fc' : '#4f46e5';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.background = 'rgba(13,11,40,0.92)';
-          e.currentTarget.style.color = 'rgba(129,140,248,0.8)';
+          e.currentTarget.style.background = isDark ? 'rgba(13,11,40,0.92)' : 'rgba(255,255,255,0.92)';
+          e.currentTarget.style.color = isDark ? 'rgba(129,140,248,0.8)' : 'rgba(99,102,241,0.8)';
         }}
       >
         <Maximize2 size={13} strokeWidth={2} />
@@ -207,6 +209,7 @@ const FlowInner = ({ blueprint }) => {
 const BackendBlueprint = ({ blueprint }) => {
   const nodeCount = blueprint?.nodes?.length ?? 0;
   const edgeCount = blueprint?.edges?.length ?? 0;
+  const { isDark } = useTheme();
 
   return (
     <motion.div
@@ -217,9 +220,9 @@ const BackendBlueprint = ({ blueprint }) => {
         width: '100%',
         borderRadius: 16,
         overflow: 'hidden',
-        background: 'linear-gradient(160deg, rgba(17,13,52,0.98) 0%, rgba(10,8,35,0.99) 100%)',
-        border: '1px solid rgba(99,102,241,0.18)',
-        boxShadow: '0 0 0 1px rgba(99,102,241,0.06), 0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)',
+        background: isDark ? 'linear-gradient(160deg, rgba(17,13,52,0.98) 0%, rgba(10,8,35,0.99) 100%)' : '#ffffff',
+        border: `1px solid ${isDark ? 'rgba(99,102,241,0.18)' : 'rgba(99,102,241,0.3)'}`,
+        boxShadow: isDark ? '0 0 0 1px rgba(99,102,241,0.06), 0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)' : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)',
       }}
     >
       {/* ── Canvas header bar ── */}
@@ -229,8 +232,8 @@ const BackendBlueprint = ({ blueprint }) => {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '10px 14px',
-          borderBottom: '1px solid rgba(99,102,241,0.12)',
-          background: 'rgba(99,102,241,0.04)',
+          borderBottom: `1px solid ${isDark ? 'rgba(99,102,241,0.12)' : 'rgba(99,102,241,0.2)'}`,
+          background: isDark ? 'rgba(99,102,241,0.04)' : 'rgba(99,102,241,0.06)',
         }}
       >
         {/* Left: icon + label */}
@@ -251,7 +254,7 @@ const BackendBlueprint = ({ blueprint }) => {
               fontWeight: 700,
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
-              color: 'rgba(129,140,248,0.8)',
+              color: isDark ? 'rgba(129,140,248,0.8)' : 'rgba(79,70,229,1)',
             }}
           >
             Architecture Blueprint
@@ -278,14 +281,14 @@ const BackendBlueprint = ({ blueprint }) => {
                 alignItems: 'center',
                 gap: 5,
                 fontSize: 10,
-                color: 'rgba(148,163,184,0.6)',
+                color: isDark ? 'rgba(148,163,184,0.6)' : 'rgba(100,116,139,0.8)',
               }}
             >
               <span
                 style={{
                   fontSize: 11,
                   fontWeight: 700,
-                  color: 'rgba(129,140,248,0.7)',
+                  color: isDark ? 'rgba(129,140,248,0.7)' : 'rgba(79,70,229,0.9)',
                 }}
               >
                 {value}

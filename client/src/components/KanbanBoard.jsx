@@ -61,7 +61,7 @@ const KanbanBoard = ({ status, tasks = [], role }) => {
         {stages.map((name, index) => (
           <div
             key={name}
-            className="rounded-lg border border-gray-700/60 bg-gray-500/5 backdrop-blur-sm p-2 h-16 flex flex-col items-center justify-between overflow-hidden"
+            className="rounded-lg border border-gray-200 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-500/5 backdrop-blur-sm p-2 h-16 flex flex-col items-center justify-between overflow-hidden"
           >
 
             <span className="text-[9px] uppercase tracking-wider text-gray-500 truncate w-full text-center px-0.5">
@@ -107,7 +107,7 @@ const KanbanBoard = ({ status, tasks = [], role }) => {
         key={count}
         initial={{ opacity: 0.4 }}
         animate={{ opacity: 1 }}
-        className="mt-3 text-center text-[11px] text-gray-400"
+        className="mt-3 text-center text-[11px] text-gray-500 dark:text-gray-400"
       >
         Generated{" "}
         <span className="font-semibold text-violet-400">

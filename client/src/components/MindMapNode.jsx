@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronUp, Brain, Sparkles, Layers, Star, Target, Eye, Map as MapIcon, BarChart2, Users, Rocket, Search, MessageSquare, Lightbulb, Flag, Zap } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 function resolveMindMapIcon(label = '') {
   const t = label.toLowerCase();
@@ -41,6 +42,7 @@ const MindMapNode = ({ id, data }) => {
     setExpandedBranchId,
     isLeft,
   } = data;
+  const { isDark } = useTheme();
 
   const isCenter = nodeKind === 'center';
   const isBranch = nodeKind === 'branch';
@@ -91,9 +93,9 @@ const MindMapNode = ({ id, data }) => {
         <div
           style={{
             borderRadius: 20,
-            background: 'linear-gradient(145deg, rgba(49,46,129,0.9) 0%, rgba(30,27,75,0.95) 100%)',
-            border: '1.5px solid rgba(129,140,248,0.5)',
-            boxShadow: `0 0 0 1px rgba(129,140,248,0.15), 0 0 40px rgba(129,140,248,0.25), 0 8px 32px rgba(0,0,0,0.6)`,
+            background: isDark ? 'linear-gradient(145deg, rgba(49,46,129,0.9) 0%, rgba(30,27,75,0.95) 100%)' : 'linear-gradient(145deg, rgba(238,242,255,0.95) 0%, rgba(224,231,255,0.9) 100%)',
+            border: `1.5px solid ${isDark ? 'rgba(129,140,248,0.5)' : 'rgba(99,102,241,0.3)'}`,
+            boxShadow: isDark ? `0 0 0 1px rgba(129,140,248,0.15), 0 0 40px rgba(129,140,248,0.25), 0 8px 32px rgba(0,0,0,0.6)` : `0 4px 20px rgba(99,102,241,0.15), 0 0 0 1px rgba(99,102,241,0.1)`,
             backdropFilter: 'blur(16px)',
             padding: '14px 18px',
             display: 'flex',
@@ -110,7 +112,7 @@ const MindMapNode = ({ id, data }) => {
               style={{
                 fontSize: 13,
                 fontWeight: 700,
-                color: '#e0e7ff',
+                color: isDark ? '#e0e7ff' : '#312e81',
                 letterSpacing: '0.01em',
                 textAlign: 'center',
                 lineHeight: 1.3,
@@ -125,7 +127,7 @@ const MindMapNode = ({ id, data }) => {
               fontWeight: 600,
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
-              color: 'rgba(129,140,248,0.6)',
+              color: isDark ? 'rgba(129,140,248,0.6)' : 'rgba(79,70,229,0.8)',
             }}
           >
             Product Strategy
@@ -172,16 +174,34 @@ const MindMapNode = ({ id, data }) => {
             cursor: 'pointer',
             borderRadius: 14,
             overflow: 'hidden',
-            background: isExpanded
-              ? `linear-gradient(145deg, ${bg.replace('0.08', '0.18')} 0%, rgba(13,11,40,0.95) 100%)`
-              : `linear-gradient(145deg, rgba(17,14,50,0.9) 0%, rgba(10,8,35,0.95) 100%)`,
-            border: isExpanded
-              ? `1.5px solid ${color}55`
-              : `1px solid rgba(255,255,255,0.07)`,
+            background: isDark ? (
+              isExpanded
+                ? `linear-gradient(145deg, ${bg.replace('0.08', '0.18')} 0%, rgba(13,11,40,0.95) 100%)`
+                : `linear-gradient(145deg, rgba(17,14,50,0.9) 0%, rgba(10,8,35,0.95) 100%)`
+            ) : (
+              isExpanded
+                ? `linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)`
+                : `#ffffff`
+            ),
+            border: isDark ? (
+              isExpanded
+                ? `1.5px solid ${color}55`
+                : `1px solid rgba(255,255,255,0.07)`
+            ) : (
+              isExpanded
+                ? `1.5px solid ${color}55`
+                : `1px solid rgba(0,0,0,0.05)`
+            ),
             backdropFilter: 'blur(14px)',
-            boxShadow: isExpanded
-              ? `0 0 0 1px ${color}20, 0 8px 28px rgba(0,0,0,0.55), 0 0 20px ${glow}`
-              : `0 4px 16px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)`,
+            boxShadow: isDark ? (
+              isExpanded
+                ? `0 0 0 1px ${color}20, 0 8px 28px rgba(0,0,0,0.55), 0 0 20px ${glow}`
+                : `0 4px 16px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)`
+            ) : (
+              isExpanded
+                ? `0 0 0 1px ${color}10, 0 8px 24px rgba(0,0,0,0.1), 0 0 20px ${glow.replace('0.4', '0.15')}`
+                : `0 2px 8px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02)`
+            ),
             transition: 'box-shadow 0.3s, border-color 0.3s, background 0.3s',
           }}
         >
@@ -221,7 +241,7 @@ const MindMapNode = ({ id, data }) => {
                 flex: 1,
                 fontSize: 12,
                 fontWeight: 650,
-                color: isExpanded ? '#f1f5f9' : '#cbd5e1',
+                color: isDark ? (isExpanded ? '#f1f5f9' : '#cbd5e1') : (isExpanded ? '#0f172a' : '#334155'),
                 lineHeight: 1.3,
                 letterSpacing: '0.005em',
                 overflow: 'hidden',
@@ -241,12 +261,12 @@ const MindMapNode = ({ id, data }) => {
                   width: 20,
                   height: 20,
                   borderRadius: 6,
-                  background: isExpanded ? `${color}25` : 'rgba(255,255,255,0.05)',
-                  border: `1px solid ${isExpanded ? color + '45' : 'rgba(255,255,255,0.08)'}`,
+                  background: isDark ? (isExpanded ? `${color}25` : 'rgba(255,255,255,0.05)') : (isExpanded ? `${color}15` : 'rgba(0,0,0,0.03)'),
+                  border: isDark ? `1px solid ${isExpanded ? color + '45' : 'rgba(255,255,255,0.08)'}` : `1px solid ${isExpanded ? color + '25' : 'rgba(0,0,0,0.05)'}`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: isExpanded ? color : 'rgba(148,163,184,0.6)',
+                  color: isDark ? (isExpanded ? color : 'rgba(148,163,184,0.6)') : (isExpanded ? color : 'rgba(100,116,139,0.8)'),
                   transition: 'all 0.2s',
                 }}
               >
@@ -274,10 +294,10 @@ const MindMapNode = ({ id, data }) => {
                   ...(isLeft ? { right: 'calc(100% + 12px)' } : { left: 'calc(100% + 12px)' }),
                   width: 240,
                   borderRadius: 12,
-                  background: `linear-gradient(145deg, rgba(17,14,50,0.95) 0%, rgba(10,8,35,0.98) 100%)`,
-                  border: `1px solid ${color}55`,
+                  background: isDark ? `linear-gradient(145deg, rgba(17,14,50,0.95) 0%, rgba(10,8,35,0.98) 100%)` : '#ffffff',
+                  border: isDark ? `1px solid ${color}55` : `1px solid ${color}30`,
                   backdropFilter: 'blur(16px)',
-                  boxShadow: `0 8px 32px rgba(0,0,0,0.6), 0 0 20px ${glow}`,
+                  boxShadow: isDark ? `0 8px 32px rgba(0,0,0,0.6), 0 0 20px ${glow}` : `0 4px 20px rgba(0,0,0,0.1), 0 0 10px ${glow.replace('0.4', '0.1')}`,
                   zIndex: 50,
                   overflow: 'hidden',
                 }}
@@ -316,7 +336,7 @@ const MindMapNode = ({ id, data }) => {
                   <p
                     style={{
                       fontSize: 10.5,
-                      color: 'rgba(148,163,184,0.85)',
+                      color: isDark ? 'rgba(148,163,184,0.85)' : 'rgba(71,85,105,0.9)',
                       lineHeight: 1.55,
                       margin: 0,
                       fontStyle: 'italic',
@@ -368,10 +388,10 @@ const MindMapNode = ({ id, data }) => {
         whileHover={{ scale: 1.04, y: -1 }}
         style={{
           borderRadius: 11,
-          background: `linear-gradient(145deg, rgba(17,14,50,0.88) 0%, rgba(10,8,35,0.92) 100%)`,
-          border: `1px solid ${color}30`,
+          background: isDark ? `linear-gradient(145deg, rgba(17,14,50,0.88) 0%, rgba(10,8,35,0.92) 100%)` : '#ffffff',
+          border: isDark ? `1px solid ${color}30` : `1px solid rgba(0,0,0,0.06)`,
           backdropFilter: 'blur(12px)',
-          boxShadow: `0 2px 12px rgba(0,0,0,0.4), 0 0 8px ${glow}`,
+          boxShadow: isDark ? `0 2px 12px rgba(0,0,0,0.4), 0 0 8px ${glow}` : `0 2px 8px rgba(0,0,0,0.04)`,
           padding: '9px 11px',
           cursor: 'default',
         }}
@@ -399,7 +419,7 @@ const MindMapNode = ({ id, data }) => {
               style={{
                 fontSize: 11,
                 fontWeight: 600,
-                color: '#e2e8f0',
+                color: isDark ? '#e2e8f0' : '#1e293b',
                 lineHeight: 1.3,
                 marginBottom: description ? 3 : 0,
               }}
@@ -410,7 +430,7 @@ const MindMapNode = ({ id, data }) => {
               <div
                 style={{
                   fontSize: 10,
-                  color: 'rgba(148,163,184,0.65)',
+                  color: isDark ? 'rgba(148,163,184,0.65)' : 'rgba(100,116,139,0.8)',
                   lineHeight: 1.45,
                   overflow: 'hidden',
                   display: '-webkit-box',

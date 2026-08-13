@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { ArrowLeft, User, Cpu, PenTool, Database, AlertCircle, Loader2 } from 'lucide-react';
 import { getProjectById } from '../api/project';
+import { useTheme } from '../context/ThemeContext';
 
 // Lazy-load visualizations — only the one that matches the current route is loaded
 const ProductMindMap        = lazy(() => import('../components/ProductMindMap'));
@@ -61,6 +62,7 @@ const BLUEPRINT_CONFIG = {
 const BlueprintPage = () => {
   const { projectId, blueprintType } = useParams();
   const navigate = useNavigate();
+  const { isDark } = useTheme();
 
   const [project, setProject]     = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -108,8 +110,8 @@ const BlueprintPage = () => {
   // ── Unknown blueprint type ─────────────────────────────────────────────────
   if (!config) {
     return (
-      <div style={styles.page}>
-        <div style={styles.errorBox}>
+      <div style={{ ...styles.page, background: isDark ? 'linear-gradient(160deg, #030712 0%, #060a1c 100%)' : '#f9fafb', color: isDark ? '#e2e8f0' : '#111827' }}>
+        <div style={{ ...styles.errorBox, background: isDark ? 'rgba(239,68,68,0.08)' : 'rgba(239,68,68,0.1)' }}>
           <AlertCircle size={18} style={{ color: '#f87171', flexShrink: 0 }} />
           <span style={{ color: '#f87171', fontSize: 14 }}>
             Unknown blueprint type: &ldquo;{blueprintType}&rdquo;
@@ -136,13 +138,13 @@ const BlueprintPage = () => {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div style={styles.page}>
+    <div style={{ ...styles.page, background: isDark ? 'linear-gradient(160deg, #030712 0%, #060a1c 100%)' : '#f9fafb', color: isDark ? '#e2e8f0' : '#111827' }}>
       {/* ── Header ── */}
       <header
         style={{
           ...styles.header,
-          borderBottom: `1px solid ${accentBorder}`,
-          background: accentBg,
+          borderBottom: `1px solid ${isDark ? accentBorder : accentBorder.replace('0.18', '0.4').replace('0.25', '0.5')}`,
+          background: isDark ? accentBg : accentBg.replace('0.04', '0.1'),
         }}
       >
         {/* Back button */}
@@ -162,8 +164,9 @@ const BlueprintPage = () => {
           <div
             style={{
               ...styles.iconWrap,
-              borderColor: accentBorder,
+              borderColor: isDark ? accentBorder : accentBorder.replace('0.18', '0.4'),
               color: accentColor,
+              background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
             }}
           >
             <Icon size={16} />
@@ -177,8 +180,9 @@ const BlueprintPage = () => {
           <div
             style={{
               ...styles.bpTypePill,
-              borderColor: accentBorder,
+              borderColor: isDark ? accentBorder : accentBorder.replace('0.18', '0.4'),
               color: accentColor,
+              background: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
             }}
           >
             {bpLabel}
@@ -210,7 +214,7 @@ const BlueprintPage = () => {
         {/* Error */}
         {!isLoading && error && (
           <div style={{ ...styles.centred }}>
-            <div style={styles.errorBox}>
+            <div style={{ ...styles.errorBox, background: isDark ? 'rgba(239,68,68,0.08)' : 'rgba(239,68,68,0.1)' }}>
               <AlertCircle size={18} style={{ color: '#f87171', flexShrink: 0 }} />
               <span style={{ color: '#f87171', fontSize: 14 }}>{error}</span>
             </div>
@@ -220,7 +224,7 @@ const BlueprintPage = () => {
         {/* No blueprint data */}
         {!isLoading && !error && !blueprint && (
           <div style={styles.centred}>
-            <span style={{ color: 'rgba(148,163,184,0.4)', fontSize: 13 }}>
+            <span style={{ color: isDark ? 'rgba(148,163,184,0.4)' : 'rgba(15,23,42,0.4)', fontSize: 13 }}>
               No blueprint data available for this agent yet.
             </span>
           </div>
@@ -265,8 +269,6 @@ const styles = {
     height: '100vh',
     display: 'flex',
     flexDirection: 'column',
-    background: 'linear-gradient(160deg, #030712 0%, #060a1c 100%)',
-    color: '#e2e8f0',
     fontFamily: "'Inter', system-ui, sans-serif",
     overflow: 'hidden',
   },
@@ -311,7 +313,6 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'rgba(255,255,255,0.03)',
     flexShrink: 0,
   },
   agentName: {
@@ -337,7 +338,6 @@ const styles = {
     border: '1px solid',
     borderRadius: 6,
     padding: '3px 9px',
-    background: 'rgba(255,255,255,0.02)',
   },
   canvas: {
     flex: 1,
@@ -368,7 +368,6 @@ const styles = {
     display: 'flex',
     alignItems: 'flex-start',
     gap: 10,
-    background: 'rgba(239,68,68,0.08)',
     border: '1px solid rgba(239,68,68,0.25)',
     borderRadius: 12,
     padding: '14px 18px',

@@ -47,16 +47,16 @@ const Login = () => {
   };
 
   return (
-    <main className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4 transition-colors duration-300">
       <div className="w-full max-w-md">
-        <h1 className="text-4xl font-bold text-white text-center mb-2 tracking-tight">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white text-center mb-2 tracking-tight">
           Foundry
         </h1>
-        <p className="text-gray-400 text-center mb-8 text-sm">Sign in to your account</p>
+        <p className="text-gray-500 dark:text-gray-400 text-center mb-8 text-sm">Sign in to your account</p>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-gray-900 border border-gray-800 rounded-2xl p-8 space-y-5"
+          className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-8 space-y-5 shadow-sm"
         >
           {serverError && (
             <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-4 py-3">
@@ -65,7 +65,7 @@ const Login = () => {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5" htmlFor="login-email">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5" htmlFor="login-email">
               Email
             </label>
             <input
@@ -75,15 +75,15 @@ const Login = () => {
               value={form.email}
               onChange={handleChange}
               placeholder="you@example.com"
-              className={`w-full bg-gray-800 border rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ${
-                errors.email ? 'border-red-500' : 'border-gray-700'
+              className={`w-full bg-gray-50 dark:bg-gray-800 border rounded-lg px-4 py-2.5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ${
+                errors.email ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'
               }`}
             />
             {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5" htmlFor="login-password">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5" htmlFor="login-password">
               Password
             </label>
             <input
@@ -93,8 +93,8 @@ const Login = () => {
               value={form.password}
               onChange={handleChange}
               placeholder="••••••••"
-              className={`w-full bg-gray-800 border rounded-lg px-4 py-2.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ${
-                errors.password ? 'border-red-500' : 'border-gray-700'
+              className={`w-full bg-gray-50 dark:bg-gray-800 border rounded-lg px-4 py-2.5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ${
+                errors.password ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'
               }`}
             />
             {errors.password && <p className="mt-1 text-xs text-red-400">{errors.password}</p>}
@@ -110,9 +110,9 @@ const Login = () => {
           </button>
         </form>
 
-        <p className="text-gray-500 text-sm text-center mt-6">
+        <p className="text-gray-500 dark:text-gray-500 text-sm text-center mt-6">
           Don't have an account?{' '}
-          <Link to="/signup" className="text-indigo-400 hover:text-indigo-300 transition-colors">
+          <Link to="/signup" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors">
             Sign up
           </Link>
         </p>

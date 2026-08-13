@@ -13,6 +13,7 @@ import { motion } from 'framer-motion';
 import { buildMindMap, BRANCH_COLORS } from '../utils/buildMindMap';
 import MindMapNode from './MindMapNode';
 import { Maximize2, GitMerge } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 const nodeTypes = { mindMapNode: MindMapNode };
 
@@ -23,6 +24,7 @@ const MindMapInner = ({ blueprint }) => {
   // expandedBranchId: only one branch can be open at once
   const [expandedBranchId, setExpandedBranchId] = useState(null);
   const { fitView } = useReactFlow();
+  const { isDark } = useTheme();
 
   // Build nodes + edges once from blueprint
   const { nodes: rawNodes, edges: rawEdges } = useMemo(
@@ -115,7 +117,7 @@ const MindMapInner = ({ blueprint }) => {
           alignItems: 'center',
           justifyContent: 'center',
           height: 300,
-          color: 'rgba(99,102,241,0.4)',
+          color: isDark ? 'rgba(99,102,241,0.4)' : 'rgba(99,102,241,0.6)',
           fontSize: 13,
           fontFamily: "'Inter', system-ui, sans-serif",
           gap: 8,
@@ -164,8 +166,8 @@ const MindMapInner = ({ blueprint }) => {
         <Controls
           showInteractive={false}
           style={{
-            background: 'rgba(10,8,35,0.92)',
-            border: '1px solid rgba(99,102,241,0.2)',
+            background: isDark ? 'rgba(10,8,35,0.92)' : 'rgba(255,255,255,0.92)',
+            border: `1px solid ${isDark ? 'rgba(99,102,241,0.2)' : 'rgba(99,102,241,0.4)'}`,
             borderRadius: 10,
             padding: 4,
             boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
@@ -187,9 +189,9 @@ const MindMapInner = ({ blueprint }) => {
           width: 30,
           height: 30,
           borderRadius: 8,
-          background: 'rgba(10,8,35,0.92)',
-          border: '1px solid rgba(99,102,241,0.22)',
-          color: 'rgba(129,140,248,0.8)',
+          background: isDark ? 'rgba(10,8,35,0.92)' : 'rgba(255,255,255,0.92)',
+          border: `1px solid ${isDark ? 'rgba(99,102,241,0.22)' : 'rgba(99,102,241,0.4)'}`,
+          color: isDark ? 'rgba(129,140,248,0.8)' : 'rgba(99,102,241,0.8)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -198,12 +200,12 @@ const MindMapInner = ({ blueprint }) => {
           transition: 'background 0.2s, color 0.2s',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'rgba(99,102,241,0.2)';
-          e.currentTarget.style.color = '#a5b4fc';
+          e.currentTarget.style.background = isDark ? 'rgba(99,102,241,0.2)' : 'rgba(99,102,241,0.1)';
+          e.currentTarget.style.color = isDark ? '#a5b4fc' : '#4f46e5';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.background = 'rgba(10,8,35,0.92)';
-          e.currentTarget.style.color = 'rgba(129,140,248,0.8)';
+          e.currentTarget.style.background = isDark ? 'rgba(10,8,35,0.92)' : 'rgba(255,255,255,0.92)';
+          e.currentTarget.style.color = isDark ? 'rgba(129,140,248,0.8)' : 'rgba(99,102,241,0.8)';
         }}
       >
         <Maximize2 size={13} strokeWidth={2} />
@@ -217,6 +219,7 @@ const MindMapInner = ({ blueprint }) => {
    ───────────────────────────────────────────────────────────────── */
 const ProductMindMap = ({ blueprint }) => {
   const branchCount = blueprint?.branches?.length ?? 0;
+  const { isDark } = useTheme();
 
   return (
     <motion.div
@@ -227,9 +230,9 @@ const ProductMindMap = ({ blueprint }) => {
         width: '100%',
         borderRadius: 16,
         overflow: 'hidden',
-        background: 'linear-gradient(160deg, rgba(10,18,40,0.99) 0%, rgba(6,10,28,0.99) 100%)',
-        border: '1px solid rgba(45,212,191,0.14)',
-        boxShadow: '0 0 0 1px rgba(45,212,191,0.05), 0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03)',
+        background: isDark ? 'linear-gradient(160deg, rgba(10,18,40,0.99) 0%, rgba(6,10,28,0.99) 100%)' : '#ffffff',
+        border: `1px solid ${isDark ? 'rgba(45,212,191,0.14)' : 'rgba(45,212,191,0.3)'}`,
+        boxShadow: isDark ? '0 0 0 1px rgba(45,212,191,0.05), 0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03)' : '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)',
       }}
     >
       {/* ── Header bar ── */}
@@ -239,8 +242,8 @@ const ProductMindMap = ({ blueprint }) => {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '10px 14px',
-          borderBottom: '1px solid rgba(45,212,191,0.1)',
-          background: 'rgba(45,212,191,0.03)',
+          borderBottom: `1px solid ${isDark ? 'rgba(45,212,191,0.1)' : 'rgba(45,212,191,0.2)'}`,
+          background: isDark ? 'rgba(45,212,191,0.03)' : 'rgba(45,212,191,0.05)',
         }}
       >
         {/* Left: dot + label */}
@@ -261,7 +264,7 @@ const ProductMindMap = ({ blueprint }) => {
               fontWeight: 700,
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
-              color: 'rgba(45,212,191,0.75)',
+              color: isDark ? 'rgba(45,212,191,0.75)' : 'rgba(13,148,136,1)',
             }}
           >
             Product Strategy Mind Map
@@ -288,14 +291,14 @@ const ProductMindMap = ({ blueprint }) => {
                 alignItems: 'center',
                 gap: 5,
                 fontSize: 10,
-                color: 'rgba(148,163,184,0.55)',
+                color: isDark ? 'rgba(148,163,184,0.55)' : 'rgba(100,116,139,0.8)',
               }}
             >
               <span
                 style={{
                   fontSize: 11,
                   fontWeight: 700,
-                  color: 'rgba(45,212,191,0.65)',
+                  color: isDark ? 'rgba(45,212,191,0.65)' : 'rgba(13,148,136,0.9)',
                 }}
               >
                 {value}

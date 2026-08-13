@@ -5,6 +5,7 @@ import {
   ChevronDown, ChevronUp, 
   MonitorSmartphone, Globe, Database, HardDrive, Rows, Layers, Cloud, Settings, Server
 } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 const TYPE_ICONS = {
   client: MonitorSmartphone,
@@ -21,6 +22,7 @@ const ArchitectureNode = ({ id, data }) => {
   const isExpanded = expandedNodeId === id;
   const Icon = TYPE_ICONS[type] || Server;
   const isExternal = type === 'external';
+  const { isDark } = useTheme();
 
   const toggle = () => setExpandedNodeId(isExpanded ? null : id);
 
@@ -54,16 +56,28 @@ const ArchitectureNode = ({ id, data }) => {
         style={{
           cursor: 'pointer',
           borderRadius: type === 'service' ? 12 : type === 'database' ? 20 : 8,
-          background: isExpanded
-            ? `linear-gradient(150deg, rgba(15,23,42,0.95) 0%, rgba(9,14,23,0.98) 100%)`
-            : `linear-gradient(150deg, rgba(30,41,59,0.85) 0%, rgba(15,23,42,0.9) 100%)`,
+          background: isDark ? (
+            isExpanded
+              ? `linear-gradient(150deg, rgba(15,23,42,0.95) 0%, rgba(9,14,23,0.98) 100%)`
+              : `linear-gradient(150deg, rgba(30,41,59,0.85) 0%, rgba(15,23,42,0.9) 100%)`
+          ) : (
+            isExpanded
+              ? `linear-gradient(150deg, #ffffff 0%, #f8fafc 100%)`
+              : `#ffffff`
+          ),
           border: isExternal 
             ? `2px dashed ${palette.color}80` 
-            : `1px solid ${isExpanded ? palette.color + '60' : 'rgba(255,255,255,0.1)'}`,
+            : `1px solid ${isExpanded ? palette.color + (isDark ? '60' : '80') : (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')}`,
           backdropFilter: 'blur(16px)',
-          boxShadow: isExpanded
-            ? `0 0 0 1px ${palette.color}40, 0 12px 40px rgba(0,0,0,0.6), 0 0 24px ${palette.glow}`
-            : '0 4px 16px rgba(0,0,0,0.5)',
+          boxShadow: isDark ? (
+            isExpanded
+              ? `0 0 0 1px ${palette.color}40, 0 12px 40px rgba(0,0,0,0.6), 0 0 24px ${palette.glow}`
+              : '0 4px 16px rgba(0,0,0,0.5)'
+          ) : (
+            isExpanded
+              ? `0 0 0 1px ${palette.color}20, 0 12px 30px rgba(0,0,0,0.1), 0 0 20px ${palette.glow.replace('0.4', '0.15')}`
+              : '0 2px 8px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.05)'
+          ),
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', minHeight: 64 }}>
@@ -74,7 +88,7 @@ const ArchitectureNode = ({ id, data }) => {
               width: 36,
               height: 36,
               borderRadius: type === 'database' ? '50%' : 8,
-              background: palette.bg,
+              background: isDark ? palette.bg : palette.bg.replace('0.1', '0.05'),
               border: `1px solid ${palette.color}40`,
               display: 'flex',
               alignItems: 'center',
@@ -91,7 +105,7 @@ const ArchitectureNode = ({ id, data }) => {
             <div style={{
               fontSize: 13,
               fontWeight: 600,
-              color: isExpanded ? '#f8fafc' : '#e2e8f0',
+              color: isDark ? (isExpanded ? '#f8fafc' : '#e2e8f0') : (isExpanded ? '#0f172a' : '#1e293b'),
               lineHeight: 1.3,
               letterSpacing: '0.01em',
               whiteSpace: 'nowrap',
@@ -122,12 +136,12 @@ const ArchitectureNode = ({ id, data }) => {
               width: 24,
               height: 24,
               borderRadius: 6,
-              background: isExpanded ? palette.bg : 'rgba(255,255,255,0.05)',
-              border: `1px solid ${isExpanded ? palette.color + '40' : 'rgba(255,255,255,0.1)'}`,
+              background: isExpanded ? palette.bg : (isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'),
+              border: `1px solid ${isExpanded ? palette.color + '40' : (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: isExpanded ? palette.color : 'rgba(148,163,184,0.6)',
+              color: isExpanded ? palette.color : (isDark ? 'rgba(148,163,184,0.6)' : 'rgba(100,116,139,0.8)'),
             }}
           >
             {isExpanded ? <ChevronUp size={14} strokeWidth={2.5} /> : <ChevronDown size={14} strokeWidth={2.5} />}
@@ -150,10 +164,10 @@ const ArchitectureNode = ({ id, data }) => {
                 left: 'calc(100% + 16px)',
                 width: 280,
                 borderRadius: 12,
-                background: `linear-gradient(150deg, rgba(15,23,42,0.95) 0%, rgba(9,14,23,0.98) 100%)`,
-                border: `1px solid ${palette.color}50`,
+                background: isDark ? `linear-gradient(150deg, rgba(15,23,42,0.95) 0%, rgba(9,14,23,0.98) 100%)` : '#ffffff',
+                border: isDark ? `1px solid ${palette.color}50` : `1px solid ${palette.color}40`,
                 backdropFilter: 'blur(16px)',
-                boxShadow: `0 12px 40px rgba(0,0,0,0.6), 0 0 24px ${palette.glow}`,
+                boxShadow: isDark ? `0 12px 40px rgba(0,0,0,0.6), 0 0 24px ${palette.glow}` : `0 4px 20px rgba(0,0,0,0.1), 0 0 10px ${palette.glow.replace('0.4', '0.1')}`,
                 zIndex: 50,
                 overflow: 'hidden',
               }}
@@ -169,7 +183,7 @@ const ArchitectureNode = ({ id, data }) => {
                 </div>
                 
                 {/* Short AI Explanation */}
-                <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.9)', lineHeight: 1.5, margin: '0 0 10px 0', fontStyle: 'italic' }}>
+                <p style={{ fontSize: 11, color: isDark ? 'rgba(148,163,184,0.9)' : 'rgba(71,85,105,0.9)', lineHeight: 1.5, margin: '0 0 10px 0', fontStyle: 'italic' }}>
                   {description}
                 </p>
 
@@ -177,7 +191,7 @@ const ArchitectureNode = ({ id, data }) => {
                 {notes.length > 0 && (
                   <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {notes.map((note, i) => (
-                      <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 10.5, color: '#cbd5e1', lineHeight: 1.4 }}>
+                      <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 10.5, color: isDark ? '#cbd5e1' : '#334155', lineHeight: 1.4 }}>
                         <span style={{ flexShrink: 0, width: 4, height: 4, borderRadius: '50%', background: palette.color, marginTop: 5, boxShadow: `0 0 4px ${palette.color}80` }} />
                         {note}.
                       </li>
