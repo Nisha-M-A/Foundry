@@ -3,6 +3,7 @@ const { buildProductManagerPrompt } = require('../prompts/productManagerPrompt')
 const { buildArchitectPrompt } = require('../prompts/architectPrompt');
 const { buildUIDesignerPrompt } = require('../prompts/uiDesignerPrompt');
 const { buildBackendEngineerPrompt } = require('../prompts/backendEngineerPrompt');
+const { productManagerSchema, systemArchitectSchema, uiDesignerSchema, backendEngineerSchema } = require('../schemas/agent.schema');
 const Project = require('../models/Project');
 
 /**
@@ -20,16 +21,16 @@ const generateBlueprint = async (req, res) => {
     const cleanPrompt = prompt.trim();
 
     // Launch all 4 requests simultaneously
-    const pmPromise = geminiService.generateAgentResponse(buildProductManagerPrompt(cleanPrompt))
+    const pmPromise = geminiService.generateAgentResponse(buildProductManagerPrompt(cleanPrompt), productManagerSchema)
       .catch(err => ({ error: true, summary: "Error: Product Manager failed to generate a response." }));
     
-    const archPromise = geminiService.generateAgentResponse(buildArchitectPrompt(cleanPrompt))
+    const archPromise = geminiService.generateAgentResponse(buildArchitectPrompt(cleanPrompt), systemArchitectSchema)
       .catch(err => ({ error: true, summary: "Error: System Architect failed to generate a response." }));
       
-    const uiPromise = geminiService.generateAgentResponse(buildUIDesignerPrompt(cleanPrompt))
+    const uiPromise = geminiService.generateAgentResponse(buildUIDesignerPrompt(cleanPrompt), uiDesignerSchema)
       .catch(err => ({ error: true, summary: "Error: UI Designer failed to generate a response." }));
       
-    const backendPromise = geminiService.generateAgentResponse(buildBackendEngineerPrompt(cleanPrompt))
+    const backendPromise = geminiService.generateAgentResponse(buildBackendEngineerPrompt(cleanPrompt), backendEngineerSchema)
       .catch(err => ({ error: true, summary: "Error: Backend Engineer failed to generate a response." }));
 
     const [pmResult, archResult, uiResult, backendResult] = await Promise.all([

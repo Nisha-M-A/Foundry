@@ -22,7 +22,7 @@ const cleanJsonResponse = (text) => {
 /**
  * Generates an agent response using Gemini 2.5 Flash, with automatic retries and JSON validation.
  */
-const generateAgentResponse = async (fullPrompt) => {
+const generateAgentResponse = async (fullPrompt, schema = null) => {
   if (!process.env.GEMINI_API_KEY) {
     throw new Error('GEMINI_API_KEY is not configured on the server.');
   }
@@ -54,6 +54,16 @@ const generateAgentResponse = async (fullPrompt) => {
         jsonData = JSON.parse(cleanedText);
       } catch (parseError) {
         throw new Error('Gemini returned malformed JSON.');
+      }
+
+      if (schema) {
+        const validationResult = schema.safeParse(jsonData);
+        if (!validationResult.success) {
+          console.error(`[Gemini Service] Schema validation failed for prompt prefix: "${fullPrompt.substring(0, 50)}..."`);
+          console.error(validationResult.error.toString());
+          throw new Error('Gemini returned data that failed schema validation.');
+        }
+        return validationResult.data;
       }
 
       // Success
