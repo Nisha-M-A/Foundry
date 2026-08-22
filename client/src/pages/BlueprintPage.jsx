@@ -69,6 +69,10 @@ const BlueprintPage = () => {
   const [error, setError]         = useState('');
 
   const config = BLUEPRINT_CONFIG[blueprintType];
+  
+  // Extract version from URL query string
+  const urlParams = new URLSearchParams(window.location.search);
+  const requestedVersion = urlParams.get('v');
 
   useEffect(() => {
     if (!projectId) {
@@ -132,9 +136,20 @@ const BlueprintPage = () => {
     loadingText,
   } = config;
 
-  const agentData   = project?.agentResponses?.[config.agentKey];
+  let agentResponses = project?.agentResponses;
+  if (project && project.versions && project.versions.length > 0) {
+    if (requestedVersion) {
+      const v = project.versions.find(v => v.versionNumber === Number(requestedVersion));
+      if (v) agentResponses = v.agentResponses;
+    } else {
+      agentResponses = project.versions[project.versions.length - 1].agentResponses;
+    }
+  }
+
+  const agentData   = agentResponses?.[config.agentKey];
   const blueprint   = agentData?.blueprint ?? null;
   const projectName = project?.projectName ?? '';
+  const versionDisplay = requestedVersion ? ` (V${requestedVersion})` : '';
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -172,7 +187,7 @@ const BlueprintPage = () => {
             <Icon size={16} />
           </div>
           <div>
-            <div style={{ ...styles.agentName, color: accentColor }}>{agentName}</div>
+            <div style={{ ...styles.agentName, color: accentColor }}>{agentName}{versionDisplay}</div>
             {projectName && (
               <div style={styles.projectNameLine}>{projectName}</div>
             )}
@@ -242,9 +257,7 @@ const BlueprintPage = () => {
                     animation: 'spin 1s linear infinite',
                   }}
                 />
-                <span
-                  style={{ color: 'rgba(148,163,184,0.6)', fontSize: 13, marginTop: 10 }}
-                >
+                <span style={{ color: 'rgba(148,163,184,0.6)', fontSize: 13, marginTop: 10 }}>
                   {loadingText}
                 </span>
               </div>

@@ -1,9 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sparkles, Send, Loader2, AlertCircle } from 'lucide-react';
 
-const PromptInput = ({ onGenerate, isLoading }) => {
+const PromptInput = ({ 
+  onGenerate, 
+  isLoading, 
+  title = "Describe your blueprint",
+  icon: Icon = Sparkles,
+  buttonText = "Generate Blueprint",
+  placeholder = "e.g. A marketplace app where users can rent camping gear from each other. Needs a booking system, user profiles, and a review feature."
+}) => {
   const [prompt, setPrompt] = useState('');
   const [error, setError] = useState('');
+
+  // Clear prompt when title/mode changes (e.g., switching projects)
+  useEffect(() => {
+    setPrompt('');
+    setError('');
+  }, [title]);
 
   const handleGenerate = () => {
     const trimmed = prompt.trim();
@@ -11,14 +24,15 @@ const PromptInput = ({ onGenerate, isLoading }) => {
       setError('Prompt cannot be empty.');
       return;
     }
-    if (trimmed.length < 10) {
-      setError('Please provide a bit more detail (at least 10 characters).');
+    if (trimmed.length < 5) {
+      setError('Please provide a bit more detail (at least 5 characters).');
       return;
     }
     
     setError('');
     if (onGenerate) {
       onGenerate(trimmed);
+      setPrompt(''); // Clear after submit
     }
   };
 
@@ -33,8 +47,8 @@ const PromptInput = ({ onGenerate, isLoading }) => {
     <div className="w-full max-w-4xl mx-auto flex flex-col gap-4">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <Sparkles size={20} className="text-indigo-500 dark:text-indigo-400" />
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white tracking-tight">Describe your blueprint</h2>
+          <Icon size={20} className="text-indigo-500 dark:text-indigo-400" />
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white tracking-tight">{title}</h2>
         </div>
         {error && (
           <div className="flex items-center gap-1.5 text-sm text-red-600 dark:text-red-400 animate-in fade-in slide-in-from-top-1">
@@ -56,7 +70,7 @@ const PromptInput = ({ onGenerate, isLoading }) => {
             onKeyDown={handleKeyDown}
             disabled={isLoading}
             className="w-full h-32 bg-transparent text-gray-900 dark:text-gray-200 p-4 resize-none focus:outline-none text-base placeholder-gray-400 dark:placeholder-gray-500 disabled:opacity-50"
-            placeholder="e.g. A marketplace app where users can rent camping gear from each other. Needs a booking system, user profiles, and a review feature."
+            placeholder={placeholder}
           />
           <div className="flex items-center justify-between p-3 border-t border-gray-100 dark:border-gray-800/50 bg-gray-50/80 dark:bg-gray-900/50">
             <span className="text-xs text-gray-500 font-medium px-2">
@@ -74,7 +88,7 @@ const PromptInput = ({ onGenerate, isLoading }) => {
                 </>
               ) : (
                 <>
-                  <span>Generate Blueprint</span>
+                  <span>{buttonText}</span>
                   <Send size={16} className="ml-1" />
                 </>
               )}

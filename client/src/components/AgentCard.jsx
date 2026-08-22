@@ -26,7 +26,7 @@ const blueprintRouteSegment = {
   'UI Designer': 'ui',
 };
 
-const AgentCard = ({ role, agentData, isLoading, projectId }) => {
+const AgentCard = ({ role, agentData, isLoading, projectId, version }) => {
   const Icon = icons[role] || User;
   const isBackendEngineer = role === 'Backend Engineer';
   const isProductManager  = role === 'Product Manager';
@@ -100,7 +100,7 @@ const AgentCard = ({ role, agentData, isLoading, projectId }) => {
   const handleViewBlueprint = () => {
     if (!projectId) return;
     const segment = blueprintRouteSegment[role];
-    navigate(`/projects/${projectId}/blueprint/${segment}`);
+    navigate(`/projects/${projectId}/blueprint/${segment}${version ? `?v=${version}` : ''}`);
   };
 
   let statusUI;

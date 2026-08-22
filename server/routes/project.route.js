@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { generateBlueprint, getProjects, getProjectById, deleteProject, duplicateProject } = require('../controllers/project.controller');
+const { generateBlueprint, addFeatureToBlueprint, getProjects, getProjectById, deleteProject, duplicateProject } = require('../controllers/project.controller');
 const { protect } = require('../middleware/auth.middleware');
 
 // GET /api/project
@@ -10,6 +10,10 @@ router.get('/', protect, getProjects);
 // POST /api/project/generate
 // Protected endpoint to generate a new blueprint
 router.post('/generate', protect, generateBlueprint);
+
+// POST /api/project/:id/feature
+// Protected endpoint to add a new feature to an existing project blueprint
+router.post('/:id/feature', protect, addFeatureToBlueprint);
 
 // DELETE /api/project/:id
 // Protected endpoint to delete a project

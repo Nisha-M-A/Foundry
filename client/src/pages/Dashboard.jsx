@@ -6,8 +6,8 @@ import AgentCard from '../components/AgentCard';
 import HistoryDrawer from '../components/HistoryDrawer';
 import SettingsDrawer from '../components/SettingsDrawer';
 import ExportBlueprintMenu from '../components/ExportBlueprintMenu';
-import { generateBlueprint, getProjects, deleteProject, duplicateProject } from '../api/project';
-import { AlertCircle } from 'lucide-react';
+import { generateBlueprint, addFeature, getProjects, deleteProject, duplicateProject } from '../api/project';
+import { AlertCircle, History, Plus } from 'lucide-react';
 
 const Dashboard = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -17,6 +17,7 @@ const Dashboard = () => {
   // History State
   const [projects, setProjects] = useState([]);
   const [currentProjectId, setCurrentProjectId] = useState(localStorage.getItem('currentProjectId') || null);
+  const [selectedVersionNumber, setSelectedVersionNumber] = useState(null);
 
   // Generation State
   const [isLoading, setIsLoading] = useState(false);
@@ -29,6 +30,16 @@ const Dashboard = () => {
   });
 
   const currentProject = projects.find(project => project._id === currentProjectId) || null;
+  
+  // Safe versions array for current project
+  const versions = currentProject?.versions?.length > 0 
+    ? currentProject.versions 
+    : (currentProject ? [{
+        versionNumber: 1,
+        featureDescription: 'Initial blueprint',
+        prompt: currentProject.prompt,
+        agentResponses: currentProject.agentResponses
+      }] : []);
 
   useEffect(() => {
     fetchProjects();
@@ -46,7 +57,13 @@ const Dashboard = () => {
         if (savedId) {
           const projectToRestore = response.projects.find(p => p._id === savedId);
           if (projectToRestore) {
-            setAgents(projectToRestore.agentResponses);
+            const projVersions = projectToRestore.versions?.length > 0 ? projectToRestore.versions : [{
+              versionNumber: 1,
+              agentResponses: projectToRestore.agentResponses
+            }];
+            const latestVersion = projVersions[projVersions.length - 1];
+            setSelectedVersionNumber(latestVersion.versionNumber);
+            setAgents(latestVersion.agentResponses);
           } else {
             localStorage.removeItem('currentProjectId');
           }
@@ -62,22 +79,36 @@ const Dashboard = () => {
     setGenerationError('');
     
     try {
-      const response = await generateBlueprint(prompt);
-      if (response.success) {
-        setAgents(response.agents);
-        
-        // Ensure new project exists in history and is marked as current
-        if (response.project && response.project._id) {
-          const newProject = {
-            _id: response.project._id,
-            projectName: response.project.title,
-            prompt: response.project.prompt,
-            agentResponses: response.agents,
-            createdAt: response.project.createdAt || new Date().toISOString()
-          };
-          setProjects(prev => [newProject, ...prev]);
-          setCurrentProjectId(response.project._id);
-          localStorage.setItem('currentProjectId', response.project._id);
+      if (currentProject) {
+        // Add Feature Flow
+        const response = await addFeature(currentProjectId, prompt, selectedVersionNumber);
+        if (response.success && response.project) {
+          setProjects(prev => prev.map(p => p._id === currentProjectId ? response.project : p));
+          setAgents(response.newVersion.agentResponses);
+          setSelectedVersionNumber(response.newVersion.versionNumber);
+        }
+      } else {
+        // New Project Flow
+        const response = await generateBlueprint(prompt);
+        if (response.success) {
+          setAgents(response.agents);
+          
+          if (response.project && response.project._id) {
+            const newProject = {
+              ...response.project,
+              agentResponses: response.agents,
+              versions: [{
+                versionNumber: 1,
+                prompt: response.project.prompt,
+                featureDescription: 'Initial blueprint',
+                agentResponses: response.agents
+              }]
+            };
+            setProjects(prev => [newProject, ...prev]);
+            setCurrentProjectId(response.project._id);
+            setSelectedVersionNumber(1);
+            localStorage.setItem('currentProjectId', response.project._id);
+          }
         }
       }
     } catch (err) {
@@ -90,10 +121,25 @@ const Dashboard = () => {
   };
 
   const handleOpenProject = (project) => {
-    setAgents(project.agentResponses);
+    const projVersions = project.versions?.length > 0 ? project.versions : [{
+      versionNumber: 1,
+      agentResponses: project.agentResponses
+    }];
+    const latestVersion = projVersions[projVersions.length - 1];
+    
+    setAgents(latestVersion.agentResponses);
+    setSelectedVersionNumber(latestVersion.versionNumber);
     setCurrentProjectId(project._id);
     localStorage.setItem('currentProjectId', project._id);
     setIsHistoryOpen(false);
+  };
+
+  const handleSelectVersion = (versionNum) => {
+    const version = versions.find(v => v.versionNumber === versionNum);
+    if (version) {
+      setSelectedVersionNumber(version.versionNumber);
+      setAgents(version.agentResponses);
+    }
   };
 
   const handleDeleteProject = async (projectId) => {
@@ -109,6 +155,7 @@ const Dashboard = () => {
           backendEngineer: null,
         });
         setCurrentProjectId(null);
+        setSelectedVersionNumber(null);
         localStorage.removeItem('currentProjectId');
       }
     } catch (err) {
@@ -121,13 +168,22 @@ const Dashboard = () => {
       const response = await duplicateProject(projectId);
       if (response.success && response.project) {
         setProjects(prev => [response.project, ...prev]);
-        // Open the duplicated project automatically
         handleOpenProject(response.project);
       }
     } catch (err) {
       console.error('Failed to duplicate project', err);
     }
   };
+
+  const selectedVersionObj = versions.find(v => v.versionNumber === selectedVersionNumber);
+
+  // Mock project object for ExportBlueprintMenu with selected version
+  const projectForExport = currentProject ? {
+    ...currentProject,
+    prompt: selectedVersionObj ? selectedVersionObj.prompt : currentProject.prompt,
+    agentResponses: agents,
+    versions: versions // to keep it if needed
+  } : null;
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-950 overflow-hidden text-gray-900 dark:text-gray-200 transition-colors duration-300">
@@ -142,16 +198,44 @@ const Dashboard = () => {
         />
         
         <main className="flex-1 flex flex-col items-center overflow-y-auto overflow-x-hidden p-6 md:p-10 lg:p-16 relative">
-          <div className="w-full max-w-5xl mx-auto flex flex-col gap-16 pb-20">
+          <div className="w-full max-w-5xl mx-auto flex flex-col gap-10 pb-20">
             {/* Header/Title Area */}
             <div className="text-center space-y-4 pt-10">
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-                What are we building today?
+                {currentProject ? currentProject.projectName : 'What are we building today?'}
               </h1>
               <p className="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-                Describe your app idea in plain English, and our specialized AI agents will create a complete blueprint.
+                {currentProject 
+                  ? 'Add a new feature to generate an updated version of your blueprint.' 
+                  : 'Describe your app idea in plain English, and our specialized AI agents will create a complete blueprint.'}
               </p>
             </div>
+
+            {/* Version History UI */}
+            {currentProject && versions.length > 0 && (
+              <div className="w-full max-w-4xl mx-auto flex items-center justify-between bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+                  <History size={18} />
+                  <span>Version History</span>
+                </div>
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+                  {versions.map(v => (
+                    <button
+                      key={v.versionNumber}
+                      onClick={() => handleSelectVersion(v.versionNumber)}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                        selectedVersionNumber === v.versionNumber 
+                          ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800' 
+                          : 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-transparent'
+                      }`}
+                      title={v.featureDescription}
+                    >
+                      V{v.versionNumber} {selectedVersionNumber === v.versionNumber && '(Current)'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Error Message Display */}
             {generationError && (
@@ -162,22 +246,35 @@ const Dashboard = () => {
             )}
 
             {/* Input Area */}
-            <PromptInput onGenerate={handleGenerate} isLoading={isLoading} />
-
-            {/* Agents Grid */}
             <div className="w-full max-w-4xl mx-auto">
-              <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-500 uppercase tracking-wider mb-4 px-1">
-                Your AI Team
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <AgentCard role="Product Manager" agentData={agents.productManager} isLoading={isLoading} projectId={currentProjectId} />
-                <AgentCard role="System Architect" agentData={agents.systemArchitect} isLoading={isLoading} projectId={currentProjectId} />
-                <AgentCard role="UI Designer" agentData={agents.uiDesigner} isLoading={isLoading} projectId={currentProjectId} />
-                <AgentCard role="Backend Engineer" agentData={agents.backendEngineer} isLoading={isLoading} projectId={currentProjectId} />
-              </div>
+               <PromptInput 
+                 onGenerate={handleGenerate} 
+                 isLoading={isLoading} 
+                 placeholder={currentProject ? "e.g. Add real-time location tracking for drivers" : undefined}
+                 title={currentProject ? "Add a new feature" : "Describe your blueprint"}
+                 icon={currentProject ? Plus : undefined}
+                 buttonText={currentProject ? "Add Feature" : "Generate Blueprint"}
+               />
             </div>
 
-            <ExportBlueprintMenu project={currentProject} />
+            {/* Agents Grid */}
+            {(currentProject || isLoading) && (
+              <div className="w-full max-w-4xl mx-auto mt-4">
+                <div className="flex items-center justify-between mb-4 px-1">
+                  <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-500 uppercase tracking-wider">
+                    Your AI Team {selectedVersionNumber ? `(V${selectedVersionNumber})` : ''}
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <AgentCard role="Product Manager" agentData={agents.productManager} isLoading={isLoading} projectId={currentProjectId} version={selectedVersionNumber} />
+                  <AgentCard role="System Architect" agentData={agents.systemArchitect} isLoading={isLoading} projectId={currentProjectId} version={selectedVersionNumber} />
+                  <AgentCard role="UI Designer" agentData={agents.uiDesigner} isLoading={isLoading} projectId={currentProjectId} version={selectedVersionNumber} />
+                  <AgentCard role="Backend Engineer" agentData={agents.backendEngineer} isLoading={isLoading} projectId={currentProjectId} version={selectedVersionNumber} />
+                </div>
+              </div>
+            )}
+
+            {currentProject && <ExportBlueprintMenu project={projectForExport} />}
           </div>
         </main>
 

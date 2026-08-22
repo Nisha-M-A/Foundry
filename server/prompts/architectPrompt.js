@@ -1,5 +1,10 @@
-const buildArchitectPrompt = (userPrompt) => `
-You are an expert System Architect. A user has requested a software application.
+const buildArchitectPrompt = (userPrompt, existingContext = null) => {
+  const contextString = existingContext 
+    ? `EXISTING BLUEPRINT DATA (JSON):\n${JSON.stringify(existingContext, null, 2)}\n\nYou are adding a new feature to the existing blueprint. Use the existing blueprint data as context and produce an updated blueprint that incorporates the new feature request while preserving the core structure.`
+    : `A user has requested a software application.`;
+
+  return `
+You are an expert System Architect. ${contextString}
 
 USER REQUEST:
 "${userPrompt}"
@@ -56,6 +61,7 @@ The blueprint MUST satisfy ALL of the following:
 - extract information from your summary — do not invent unrelated concepts
 - all values must be plain strings — no markdown, no HTML
 `;
+};
 
 module.exports = {
   buildArchitectPrompt,

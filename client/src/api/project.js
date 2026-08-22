@@ -33,3 +33,7 @@ export const getProjectById = async (id) => {
   return data;
 };
 
+export const addFeature = async (id, featurePrompt, baseVersionNumber) => {
+  const { data } = await api.post(`/project/${id}/feature`, { featurePrompt, baseVersionNumber });
+  return data;
+};
