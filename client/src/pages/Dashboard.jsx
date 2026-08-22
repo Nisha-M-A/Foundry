@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import PromptInput from '../components/PromptInput';
@@ -13,6 +14,7 @@ const Dashboard = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   
   // History State
   const [projects, setProjects] = useState([]);
@@ -61,9 +63,20 @@ const Dashboard = () => {
               versionNumber: 1,
               agentResponses: projectToRestore.agentResponses
             }];
-            const latestVersion = projVersions[projVersions.length - 1];
-            setSelectedVersionNumber(latestVersion.versionNumber);
-            setAgents(latestVersion.agentResponses);
+            
+            const vParam = searchParams.get('v');
+            let selectedV = projVersions[projVersions.length - 1]; // latest by default
+            if (vParam) {
+              const parsedV = parseInt(vParam, 10);
+              const foundV = projVersions.find(v => v.versionNumber === parsedV);
+              if (foundV) {
+                selectedV = foundV;
+              }
+            }
+            
+            setSelectedVersionNumber(selectedV.versionNumber);
+            setAgents(selectedV.agentResponses);
+            setSearchParams({ v: selectedV.versionNumber }, { replace: true });
           } else {
             localStorage.removeItem('currentProjectId');
           }
@@ -86,6 +99,7 @@ const Dashboard = () => {
           setProjects(prev => prev.map(p => p._id === currentProjectId ? response.project : p));
           setAgents(response.newVersion.agentResponses);
           setSelectedVersionNumber(response.newVersion.versionNumber);
+          setSearchParams({ v: response.newVersion.versionNumber });
         }
       } else {
         // New Project Flow
@@ -108,6 +122,7 @@ const Dashboard = () => {
             setCurrentProjectId(response.project._id);
             setSelectedVersionNumber(1);
             localStorage.setItem('currentProjectId', response.project._id);
+            setSearchParams({ v: 1 });
           }
         }
       }
@@ -131,6 +146,7 @@ const Dashboard = () => {
     setSelectedVersionNumber(latestVersion.versionNumber);
     setCurrentProjectId(project._id);
     localStorage.setItem('currentProjectId', project._id);
+    setSearchParams({ v: latestVersion.versionNumber });
     setIsHistoryOpen(false);
   };
 
@@ -139,6 +155,7 @@ const Dashboard = () => {
     if (version) {
       setSelectedVersionNumber(version.versionNumber);
       setAgents(version.agentResponses);
+      setSearchParams({ v: version.versionNumber });
     }
   };
 
@@ -182,7 +199,8 @@ const Dashboard = () => {
     ...currentProject,
     prompt: selectedVersionObj ? selectedVersionObj.prompt : currentProject.prompt,
     agentResponses: agents,
-    versions: versions // to keep it if needed
+    versions: versions, // to keep it if needed
+    selectedVersionNumber: selectedVersionNumber
   } : null;
 
   return (

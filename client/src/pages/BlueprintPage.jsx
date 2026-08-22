@@ -109,7 +109,13 @@ const BlueprintPage = () => {
     return () => { cancelled = true; };
   }, [projectId, blueprintType]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleBack = () => navigate('/dashboard');
+  const handleBack = () => {
+    if (requestedVersion) {
+      navigate(`/dashboard?v=${requestedVersion}`);
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   // ── Unknown blueprint type ─────────────────────────────────────────────────
   if (!config) {

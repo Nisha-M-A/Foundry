@@ -541,7 +541,8 @@ export const exportBlueprintPdf = async (project) => {
   }
 
   addPdfFooter(pdf);
-  pdf.save(`${safeFilename(projectTitle(project))}-blueprint.pdf`);
+  const versionSuffix = project?.selectedVersionNumber ? `-v${project.selectedVersionNumber}` : '';
+  pdf.save(`${safeFilename(projectTitle(project))}${versionSuffix}.pdf`);
 };
 
 const docParagraph = (text, options = {}) =>
@@ -635,5 +636,6 @@ export const exportBlueprintDocx = async (project) => {
   });
 
   const blob = await Packer.toBlob(doc);
-  downloadBlob(blob, `${safeFilename(projectTitle(project))}-blueprint.docx`);
+  const versionSuffix = project?.selectedVersionNumber ? `-v${project.selectedVersionNumber}` : '';
+  downloadBlob(blob, `${safeFilename(projectTitle(project))}${versionSuffix}.docx`);
 };
