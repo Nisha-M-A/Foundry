@@ -203,6 +203,19 @@ const Dashboard = () => {
     selectedVersionNumber: selectedVersionNumber
   } : null;
 
+  const handleNewBlueprint = () => {
+    setCurrentProjectId(null);
+    setSelectedVersionNumber(null);
+    setAgents({
+      productManager: null,
+      systemArchitect: null,
+      uiDesigner: null,
+      backendEngineer: null,
+    });
+    localStorage.removeItem('currentProjectId');
+    setSearchParams({});
+  };
+
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-950 overflow-hidden text-gray-900 dark:text-gray-200 transition-colors duration-300">
       <Navbar />
@@ -213,6 +226,7 @@ const Dashboard = () => {
           setIsCollapsed={setIsSidebarCollapsed} 
           onOpenHistory={() => setIsHistoryOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
+          onNewBlueprint={handleNewBlueprint}
         />
         
         <main className="flex-1 flex flex-col items-center overflow-y-auto overflow-x-hidden p-6 md:p-10 lg:p-16 relative">

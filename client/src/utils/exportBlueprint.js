@@ -305,9 +305,10 @@ const exportSections = (project) =>
     return { ...agent, response, blueprint: response?.blueprint || null };
   });
 
-const detailItems = (agent, blueprint = {}) => {
+const detailItems = (agent, blueprint) => {
+  const safeBlueprint = blueprint || {};
   if (agent.diagram === 'mindmap') {
-    return asArray(blueprint.branches).map((branch) => ({
+    return asArray(safeBlueprint.branches).map((branch) => ({
       title: branch.title,
       description: branch.description,
       children: asArray(branch.children).map((child) => ({
@@ -318,24 +319,24 @@ const detailItems = (agent, blueprint = {}) => {
   }
 
   if (agent.diagram === 'architecture') {
-    return asArray(blueprint.components).map((component) => ({
+    return asArray(safeBlueprint.components).map((component) => ({
       title: component.title,
       description: component.description,
-      notes: asArray(blueprint.connections)
+      notes: asArray(safeBlueprint.connections)
         .filter((connection) => connection.from === component.id || connection.to === component.id)
         .map((connection) => `Connection: ${connection.from} -> ${connection.to}`),
     }));
   }
 
   if (agent.diagram === 'flowchart') {
-    return asArray(blueprint.nodes).map((node) => ({
+    return asArray(safeBlueprint.nodes).map((node) => ({
       title: node.title,
       description: node.description,
       notes: asArray(node.details),
     }));
   }
 
-  return asArray(blueprint.screens).map((screen) => ({
+  return asArray(safeBlueprint.screens).map((screen) => ({
     title: screen.title,
     description: screen.description,
     children: asArray(screen.components).map((component) => ({

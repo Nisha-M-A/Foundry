@@ -1,6 +1,6 @@
 const buildUIDesignerPrompt = (userPrompt, existingContext = null) => {
   const contextString = existingContext 
-    ? `EXISTING BLUEPRINT DATA (JSON):\n${JSON.stringify(existingContext, null, 2)}\n\nYou are adding a new feature to the existing blueprint. Use the existing blueprint data as context and produce an updated blueprint that incorporates the new feature request while preserving the core structure.`
+    ? `EXISTING BLUEPRINT DATA (JSON):\n${JSON.stringify(existingContext, null, 2)}\n\nCRITICAL RULE - INCREMENTAL EVOLUTION:\nYou are modifying an existing software blueprint to incorporate ONE new feature request. The existing blueprint is the source of truth and must be preserved wherever the new feature does not require a change.\n- Preserve existing screens.\n- Determine whether the feature modifies an existing screen, adds a new screen, or adds components to an existing screen.\n- Do NOT throw away the existing screen list.\n- The number of screens does not have to increase if the feature can be integrated into existing screens.\n- Do NOT generate a new product blueprint from scratch.`
     : `A user has requested a software application.`;
 
   return `
@@ -32,6 +32,7 @@ Do NOT include any explanations, prose, or introductory text before or after the
     "type": "wireframe",
     "screens": [
       {
+        "id": "[lowercase-unique-id]",
         "title": "[Screen title]",
         "description": "[Purpose of this screen]",
         "components": [
@@ -54,8 +55,8 @@ The tasks array MUST satisfy ALL of the following:
 
 The blueprint MUST satisfy ALL of the following:
 - type must be exactly "wireframe"
-- screens must contain between 2 and 6 key screens
-- each screen must have: title (string), description (string), components (array)
+- screens must contain a reasonable number of key screens, preserving existing ones if evolving a blueprint
+- each screen must have: id (lowercase unique string), title (string), description (string), components (array)
 - each component must have: title (string), description (string)
 - extract information from your summary — do not invent unrelated concepts
 - all values must be plain strings — no markdown, no HTML

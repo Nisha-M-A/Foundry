@@ -1,6 +1,6 @@
 import { Plus, Settings, History, ChevronLeft, ChevronRight, LayoutDashboard } from 'lucide-react';
 
-const Sidebar = ({ isCollapsed, setIsCollapsed, onOpenHistory, onOpenSettings }) => {
+const Sidebar = ({ isCollapsed, setIsCollapsed, onOpenHistory, onOpenSettings, onNewBlueprint }) => {
   return (
     <aside
       className={`${
@@ -8,7 +8,10 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, onOpenHistory, onOpenSettings })
       } bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-all duration-300 relative`}
     >
       <div className="p-4 flex-1 flex flex-col gap-2">
-        <button className="flex items-center gap-3 w-full p-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-colors">
+        <button 
+          onClick={onNewBlueprint}
+          className="flex items-center gap-3 w-full p-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+        >
           <Plus size={20} className="shrink-0" />
           {!isCollapsed && <span className="font-medium text-sm whitespace-nowrap">New Blueprint</span>}
         </button>

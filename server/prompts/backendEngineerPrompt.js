@@ -1,6 +1,6 @@
 const buildBackendEngineerPrompt = (userPrompt, existingContext = null) => {
   const contextString = existingContext 
-    ? `EXISTING BLUEPRINT DATA (JSON):\n${JSON.stringify(existingContext, null, 2)}\n\nYou are adding a new feature to the existing blueprint. Use the existing blueprint data as context and produce an updated blueprint that incorporates the new feature request while preserving the core structure.`
+    ? `EXISTING BLUEPRINT DATA (JSON):\n${JSON.stringify(existingContext, null, 2)}\n\nCRITICAL RULE - INCREMENTAL EVOLUTION:\nYou are modifying an existing software blueprint to incorporate ONE new feature request. The existing blueprint is the source of truth and must be preserved wherever the new feature does not require a change.\n- Preserve existing backend structure.\n- Add/modify APIs, services, models, schemas, or processing logic required for the feature.\n- Retain existing backend responsibilities.\n- Avoid replacing the entire backend architecture.\n- Do NOT generate a new product blueprint from scratch.`
     : `A user has requested a software application.`;
 
   return `

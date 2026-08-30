@@ -1,6 +1,6 @@
 const buildProductManagerPrompt = (userPrompt, existingContext = null) => {
   const contextString = existingContext 
-    ? `EXISTING BLUEPRINT DATA (JSON):\n${JSON.stringify(existingContext, null, 2)}\n\nYou are adding a new feature to the existing blueprint. Use the existing blueprint data as context and produce an updated blueprint that incorporates the new feature request while preserving the core structure.`
+    ? `EXISTING BLUEPRINT DATA (JSON):\n${JSON.stringify(existingContext, null, 2)}\n\nCRITICAL RULE - INCREMENTAL EVOLUTION:\nYou are modifying an existing software blueprint to incorporate ONE new feature request. The existing blueprint is the source of truth and must be preserved wherever the new feature does not require a change.\n- Preserve the existing product vision.\n- Incorporate the new feature by updating relevant user stories, MVP scope, or tasks where necessary.\n- Retain unrelated existing requirements and avoid rewriting the entire product roadmap.\n- Do NOT generate a new product blueprint from scratch.`
     : `A user has requested a software application.`;
 
   return `
