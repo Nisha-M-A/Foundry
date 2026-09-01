@@ -7,8 +7,8 @@ import AgentCard from '../components/AgentCard';
 import HistoryDrawer from '../components/HistoryDrawer';
 import SettingsDrawer from '../components/SettingsDrawer';
 import ExportBlueprintMenu from '../components/ExportBlueprintMenu';
-import { generateBlueprint, addFeature, getProjects, deleteProject, duplicateProject } from '../api/project';
-import { AlertCircle, History, Plus } from 'lucide-react';
+import { generateBlueprint, addFeature, getProjects, deleteProject, duplicateProject, retryGeneration } from '../api/project';
+import { AlertCircle, History, Plus, RefreshCw } from 'lucide-react';
 
 const Dashboard = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -23,6 +23,7 @@ const Dashboard = () => {
 
   // Generation State
   const [isLoading, setIsLoading] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
   const [generationError, setGenerationError] = useState('');
   const [agents, setAgents] = useState({
     productManager: null,
@@ -135,6 +136,27 @@ const Dashboard = () => {
     }
   };
 
+  const handleRetry = async () => {
+    if (!currentProjectId || !selectedVersionNumber) return;
+    
+    setIsRetrying(true);
+    setGenerationError('');
+    
+    try {
+      const response = await retryGeneration(currentProjectId, selectedVersionNumber);
+      if (response.success && response.updatedVersion) {
+        setProjects(prev => prev.map(p => p._id === currentProjectId ? response.project : p));
+        setAgents(response.updatedVersion.agentResponses);
+      }
+    } catch (err) {
+      setGenerationError(
+        err.response?.data?.message || 'Failed to retry blueprint generation. Please try again.'
+      );
+    } finally {
+      setIsRetrying(false);
+    }
+  };
+
   const handleOpenProject = (project) => {
     const projVersions = project.versions?.length > 0 ? project.versions : [{
       versionNumber: 1,
@@ -216,6 +238,8 @@ const Dashboard = () => {
     setSearchParams({});
   };
 
+  const hasError = agents && Object.values(agents).some(agent => agent && agent.status === 'error');
+
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-950 overflow-hidden text-gray-900 dark:text-gray-200 transition-colors duration-300">
       <Navbar />
@@ -270,10 +294,31 @@ const Dashboard = () => {
             )}
 
             {/* Error Message Display */}
-            {generationError && (
-              <div className="w-full max-w-4xl mx-auto bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 rounded-xl p-4 flex items-start gap-3 shadow-sm">
-                <AlertCircle size={20} className="shrink-0 mt-0.5" />
-                <p className="text-sm">{generationError}</p>
+            {(generationError || hasError) && (
+              <div className="w-full max-w-4xl mx-auto bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <AlertCircle size={20} className="shrink-0 mt-0.5" />
+                  <p className="text-sm">{generationError || "One or more AI agents encountered an error during generation."}</p>
+                </div>
+                {hasError && (
+                  <button
+                    onClick={handleRetry}
+                    disabled={isRetrying}
+                    className="flex items-center gap-2 px-4 py-2 bg-red-100 hover:bg-red-200 dark:bg-red-500/20 dark:hover:bg-red-500/30 text-red-700 dark:text-red-300 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                  >
+                    {isRetrying ? (
+                      <>
+                        <RefreshCw size={16} className="animate-spin" />
+                        Retrying...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw size={16} />
+                        Retry Failed Agents
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             )}
 
@@ -298,10 +343,10 @@ const Dashboard = () => {
                   </h3>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <AgentCard role="Product Manager" agentData={agents.productManager} isLoading={isLoading} projectId={currentProjectId} version={selectedVersionNumber} />
-                  <AgentCard role="System Architect" agentData={agents.systemArchitect} isLoading={isLoading} projectId={currentProjectId} version={selectedVersionNumber} />
-                  <AgentCard role="UI Designer" agentData={agents.uiDesigner} isLoading={isLoading} projectId={currentProjectId} version={selectedVersionNumber} />
-                  <AgentCard role="Backend Engineer" agentData={agents.backendEngineer} isLoading={isLoading} projectId={currentProjectId} version={selectedVersionNumber} />
+                  <AgentCard role="Product Manager" agentData={agents.productManager} isLoading={isLoading || (isRetrying && agents.productManager?.status === 'error')} projectId={currentProjectId} version={selectedVersionNumber} />
+                  <AgentCard role="System Architect" agentData={agents.systemArchitect} isLoading={isLoading || (isRetrying && agents.systemArchitect?.status === 'error')} projectId={currentProjectId} version={selectedVersionNumber} />
+                  <AgentCard role="UI Designer" agentData={agents.uiDesigner} isLoading={isLoading || (isRetrying && agents.uiDesigner?.status === 'error')} projectId={currentProjectId} version={selectedVersionNumber} />
+                  <AgentCard role="Backend Engineer" agentData={agents.backendEngineer} isLoading={isLoading || (isRetrying && agents.backendEngineer?.status === 'error')} projectId={currentProjectId} version={selectedVersionNumber} />
                 </div>
               </div>
             )}

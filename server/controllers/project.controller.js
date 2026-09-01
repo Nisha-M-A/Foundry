@@ -6,6 +6,12 @@ const { buildBackendEngineerPrompt } = require('../prompts/backendEngineerPrompt
 const { productManagerSchema, systemArchitectSchema, uiDesignerSchema, backendEngineerSchema } = require('../schemas/agent.schema');
 const Project = require('../models/Project');
 
+const getErrorSummary = (err, agentName) => {
+  const isQuota = err.message && (err.message.includes('429') || err.message.toLowerCase().includes('quota'));
+  if (isQuota) return "AI generation is temporarily unavailable because the Gemini API quota has been exceeded. Please try again later.";
+  return `Error: ${agentName} failed to generate a response.`;
+};
+
 /**
  * Generates a blueprint using the Gemini AI service.
  * Connects the frontend to the multi-agent AI flow while maintaining the strict JSON contract.
@@ -22,16 +28,16 @@ const generateBlueprint = async (req, res) => {
 
     // Launch all 4 requests simultaneously
     const pmPromise = geminiService.generateAgentResponse(buildProductManagerPrompt(cleanPrompt), productManagerSchema)
-      .catch(err => ({ error: true, summary: "Error: Product Manager failed to generate a response." }));
+      .catch(err => ({ error: true, summary: getErrorSummary(err, "Product Manager") }));
     
     const archPromise = geminiService.generateAgentResponse(buildArchitectPrompt(cleanPrompt), systemArchitectSchema)
-      .catch(err => ({ error: true, summary: "Error: System Architect failed to generate a response." }));
+      .catch(err => ({ error: true, summary: getErrorSummary(err, "System Architect") }));
       
     const uiPromise = geminiService.generateAgentResponse(buildUIDesignerPrompt(cleanPrompt), uiDesignerSchema)
-      .catch(err => ({ error: true, summary: "Error: UI Designer failed to generate a response." }));
+      .catch(err => ({ error: true, summary: getErrorSummary(err, "UI Designer") }));
       
     const backendPromise = geminiService.generateAgentResponse(buildBackendEngineerPrompt(cleanPrompt), backendEngineerSchema)
-      .catch(err => ({ error: true, summary: "Error: Backend Engineer failed to generate a response." }));
+      .catch(err => ({ error: true, summary: getErrorSummary(err, "Backend Engineer") }));
 
     const [pmResult, archResult, uiResult, backendResult] = await Promise.all([
       pmPromise,
@@ -139,16 +145,16 @@ const addFeatureToBlueprint = async (req, res) => {
 
     // Launch all 4 requests simultaneously, providing existing context
     const pmPromise = geminiService.generateAgentResponse(buildProductManagerPrompt(cleanPrompt, existingContext), productManagerSchema)
-      .catch(err => ({ error: true, summary: "Error: Product Manager failed to generate a response." }));
+      .catch(err => ({ error: true, summary: getErrorSummary(err, "Product Manager") }));
     
     const archPromise = geminiService.generateAgentResponse(buildArchitectPrompt(cleanPrompt, existingContext), systemArchitectSchema)
-      .catch(err => ({ error: true, summary: "Error: System Architect failed to generate a response." }));
+      .catch(err => ({ error: true, summary: getErrorSummary(err, "System Architect") }));
       
     const uiPromise = geminiService.generateAgentResponse(buildUIDesignerPrompt(cleanPrompt, existingContext), uiDesignerSchema)
-      .catch(err => ({ error: true, summary: "Error: UI Designer failed to generate a response." }));
+      .catch(err => ({ error: true, summary: getErrorSummary(err, "UI Designer") }));
       
     const backendPromise = geminiService.generateAgentResponse(buildBackendEngineerPrompt(cleanPrompt, existingContext), backendEngineerSchema)
-      .catch(err => ({ error: true, summary: "Error: Backend Engineer failed to generate a response." }));
+      .catch(err => ({ error: true, summary: getErrorSummary(err, "Backend Engineer") }));
 
     const [pmResult, archResult, uiResult, backendResult] = await Promise.all([
       pmPromise,
@@ -268,11 +274,125 @@ const duplicateProject = async (req, res) => {
   }
 };
 
+const retryFailedAgents = async (req, res) => {
+  const { versionNumber } = req.body;
+  const projectId = req.params.id;
+
+  if (!versionNumber) {
+    return res.status(400).json({ success: false, message: 'versionNumber is required' });
+  }
+
+  try {
+    const project = await Project.findOne({ _id: projectId, owner: req.user.id });
+    if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
+
+    let versions = project.versions || [];
+    const targetVersionIndex = versions.findIndex(v => v.versionNumber === Number(versionNumber));
+    
+    if (targetVersionIndex === -1) {
+      return res.status(404).json({ success: false, message: 'Version not found' });
+    }
+
+    const targetVersion = versions[targetVersionIndex];
+    const agents = targetVersion.agentResponses;
+    const cleanPrompt = targetVersion.prompt.trim();
+
+    // Determine existing context for incremental generation
+    // If version is > 1, context is the previous version's agentResponses
+    let existingContext = null;
+    if (Number(versionNumber) > 1) {
+      const prevVersion = versions.find(v => v.versionNumber === Number(versionNumber) - 1);
+      if (prevVersion) {
+        existingContext = prevVersion.agentResponses;
+      }
+    }
+
+    // Prepare promises, ONLY for failed agents
+    const pmPromise = agents.productManager.status === 'error'
+      ? geminiService.generateAgentResponse(buildProductManagerPrompt(cleanPrompt, existingContext), productManagerSchema)
+          .catch(err => ({ error: true, summary: getErrorSummary(err, "Product Manager") }))
+      : Promise.resolve(agents.productManager);
+
+    const archPromise = agents.systemArchitect.status === 'error'
+      ? geminiService.generateAgentResponse(buildArchitectPrompt(cleanPrompt, existingContext), systemArchitectSchema)
+          .catch(err => ({ error: true, summary: getErrorSummary(err, "System Architect") }))
+      : Promise.resolve(agents.systemArchitect);
+
+    const uiPromise = agents.uiDesigner.status === 'error'
+      ? geminiService.generateAgentResponse(buildUIDesignerPrompt(cleanPrompt, existingContext), uiDesignerSchema)
+          .catch(err => ({ error: true, summary: getErrorSummary(err, "UI Designer") }))
+      : Promise.resolve(agents.uiDesigner);
+
+    const backendPromise = agents.backendEngineer.status === 'error'
+      ? geminiService.generateAgentResponse(buildBackendEngineerPrompt(cleanPrompt, existingContext), backendEngineerSchema)
+          .catch(err => ({ error: true, summary: getErrorSummary(err, "Backend Engineer") }))
+      : Promise.resolve(agents.backendEngineer);
+
+    const [pmResult, archResult, uiResult, backendResult] = await Promise.all([
+      pmPromise,
+      archPromise,
+      uiPromise,
+      backendPromise
+    ]);
+
+    // Update agent responses. If they were already successful, they remain the same object structure.
+    // If they were just retried and succeeded, format them correctly.
+    // If they were just retried and failed, format them with error.
+    
+    const updatedAgents = {
+      productManager: pmResult.status === 'completed' || pmResult.status === 'error' ? pmResult : {
+        status: pmResult.error ? "error" : "completed",
+        summary: pmResult.summary || "No summary provided.",
+        tasks: pmResult.tasks || [],
+        blueprint: pmResult.blueprint || null
+      },
+      systemArchitect: archResult.status === 'completed' || archResult.status === 'error' ? archResult : {
+        status: archResult.error ? "error" : "completed",
+        summary: archResult.summary || "No summary provided.",
+        tasks: archResult.tasks || [],
+        blueprint: archResult.blueprint || null
+      },
+      uiDesigner: uiResult.status === 'completed' || uiResult.status === 'error' ? uiResult : {
+        status: uiResult.error ? "error" : "completed",
+        summary: uiResult.summary || "No summary provided.",
+        tasks: uiResult.tasks || [],
+        blueprint: uiResult.blueprint || null
+      },
+      backendEngineer: backendResult.status === 'completed' || backendResult.status === 'error' ? backendResult : {
+        status: backendResult.error ? "error" : "completed",
+        summary: backendResult.summary || "No summary provided.",
+        tasks: backendResult.tasks || [],
+        blueprint: backendResult.blueprint || null
+      }
+    };
+
+    // Mutate the existing version in place
+    project.versions[targetVersionIndex].agentResponses = updatedAgents;
+    
+    // Also update top-level agentResponses if this is the latest version
+    const maxVersionNumber = Math.max(...versions.map(v => v.versionNumber));
+    if (Number(versionNumber) === maxVersionNumber) {
+      project.agentResponses = updatedAgents;
+    }
+
+    await project.save();
+
+    res.status(200).json({
+      success: true,
+      project: project,
+      updatedVersion: project.versions[targetVersionIndex]
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to retry agents' });
+  }
+};
+
 module.exports = {
   generateBlueprint,
   addFeatureToBlueprint,
   getProjects,
   getProjectById,
   deleteProject,
-  duplicateProject
+  duplicateProject,
+  retryFailedAgents
 };

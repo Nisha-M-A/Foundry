@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { generateBlueprint, addFeatureToBlueprint, getProjects, getProjectById, deleteProject, duplicateProject } = require('../controllers/project.controller');
+const { generateBlueprint, addFeatureToBlueprint, getProjects, getProjectById, deleteProject, duplicateProject, retryFailedAgents } = require('../controllers/project.controller');
 const { protect } = require('../middleware/auth.middleware');
 
 // GET /api/project
@@ -26,5 +26,9 @@ router.get('/:id', protect, getProjectById);
 // POST /api/project/:id/duplicate
 // Protected endpoint to duplicate a project
 router.post('/:id/duplicate', protect, duplicateProject);
+
+// POST /api/project/:id/retry
+// Protected endpoint to retry failed agents in a specific version
+router.post('/:id/retry', protect, retryFailedAgents);
 
 module.exports = router;
