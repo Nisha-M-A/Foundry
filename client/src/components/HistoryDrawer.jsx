@@ -11,6 +11,13 @@ const HistoryDrawer = ({
   currentProjectId
 }) => {
   const [projectToDelete, setProjectToDelete] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredProjects = projects.filter((project) => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return true;
+    return project.projectName?.toLowerCase().includes(query);
+  });
 
   const confirmDelete = (project) => {
     setProjectToDelete(project);
@@ -93,6 +100,8 @@ const HistoryDrawer = ({
             <input 
               type="text" 
               placeholder="Search blueprints..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm text-gray-900 dark:text-gray-200 rounded-lg pl-9 pr-4 py-2 focus:outline-none focus:border-gray-400 dark:focus:border-gray-600 focus:ring-1 focus:ring-gray-400 dark:focus:ring-gray-600 transition-colors"
             />
           </div>
@@ -109,9 +118,19 @@ const HistoryDrawer = ({
                 Blueprints you generate will appear here.
               </p>
             </div>
+          ) : filteredProjects.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center">
+              <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center mb-4">
+                <Search size={24} className="text-gray-400 dark:text-gray-600" />
+              </div>
+              <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">No matching projects</p>
+              <p className="text-gray-500 text-sm max-w-[200px]">
+                Try adjusting your search query.
+              </p>
+            </div>
           ) : (
             <div className="space-y-3">
-              {projects.map((project) => (
+              {filteredProjects.map((project) => (
                 <div 
                   key={project._id}
                   className={`p-3 rounded-lg border ${
