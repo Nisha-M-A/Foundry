@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // Middleware
-app.use(cors({ origin: ['http://localhost:5174', 'http://localhost:5173'] }));
+app.use(cors({ origin: ['http://localhost:5174', 'http://localhost:5173', 'https://foundry-rose.vercel.app'] }));
 app.use(express.json());
 
 // Routes
