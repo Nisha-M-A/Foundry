@@ -1,14 +1,14 @@
-#  ✦ Foundry
+  ✦ Foundry
 
-### **Turn an idea into an engineered product blueprint.**
+<p align="center"> <img src="https://img.shields.io/badge/ ✦-Foundry-7c3aed?style=for-the-badge" alt="Foundry"/> </p>
 
-Foundry is an **AI-powered product planning workspace** that transforms a raw software idea into a structured, evolving blueprint using a team of specialized AI agents.
+<h2 align="center">AI Product Planning Workspace</h2>
 
-Instead of asking one AI to generate everything at once, Foundry gives the problem to **four dedicated engineering roles** — each responsible for a different part of the product.
+<p align="center"> <em>Transforming raw software ideas into structured, evolving product blueprints using a team of specialized AI agents.</em> </p>
 
-> **Idea → AI Team → Blueprint → Evolve → Ship**
+<p align="center"> <a href="https://foundry-rose.vercel.app/"> <img src="https://img.shields.io/badge/🚀%20LIVE%20DEMO-Foundry-22c55e?style=for-the-badge" alt="Live Demo"/> </a> <a href="https://github.com/Nisha-M-A/Foundry"> <img src="https://img.shields.io/badge/💻%20GITHUB-Repository-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/> </a> </p>
 
----
+<p align="center"> <img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React"/> <img src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite"/> <img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js"/> <img src="https://img.shields.io/badge/Express.js-000000?style=flat-square&logo=express&logoColor=white" alt="Express"/> <img src="https://img.shields.io/badge/MongoDB%20Atlas-47A248?style=flat-square&logo=mongodb&logoColor=white" alt="MongoDB"/> <img src="https://img.shields.io/badge/Gemini%20API-4285F4?style=flat-square&logo=google&logoColor=white" alt="Gemini"/> <img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker"/> <img src="https://img.shields.io/badge/Tailwind%20CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS"/> </p>
 
 ## What is Foundry?
 
