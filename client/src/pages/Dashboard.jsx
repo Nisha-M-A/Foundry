@@ -11,7 +11,7 @@ import { generateBlueprint, addFeature, getProjects, deleteProject, duplicatePro
 import { AlertCircle, History, Plus, RefreshCw } from 'lucide-react';
 
 const Dashboard = () => {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => window.innerWidth < 768);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -252,15 +252,6 @@ const Dashboard = () => {
           onOpenSettings={() => setIsSettingsOpen(true)}
           onNewBlueprint={handleNewBlueprint}
         />
-
-        {/* Mobile backdrop — closes sidebar on tap, hidden on desktop */}
-        {!isSidebarCollapsed && (
-          <div
-            className="fixed inset-0 z-30 bg-black/40 md:hidden"
-            onClick={() => setIsSidebarCollapsed(true)}
-            aria-hidden="true"
-          />
-        )}
         
         <main className="flex-1 flex flex-col items-center overflow-y-auto overflow-x-hidden p-6 md:p-10 lg:p-16 relative">
           <div className="w-full max-w-5xl mx-auto flex flex-col gap-10 pb-20">

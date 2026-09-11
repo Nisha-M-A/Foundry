@@ -3,20 +3,9 @@ import { Plus, Settings, History, ChevronLeft, ChevronRight, LayoutDashboard } f
 const Sidebar = ({ isCollapsed, setIsCollapsed, onOpenHistory, onOpenSettings, onNewBlueprint }) => {
   return (
     <aside
-      className={`
-        ${isCollapsed
-          ? 'md:w-16 -translate-x-full md:translate-x-0'
-          : 'md:w-64 translate-x-0'
-        }
-        fixed md:relative
-        top-0 left-0 h-full md:h-auto
-        w-4/5 md:w-auto
-        z-40 md:z-auto
-        bg-white dark:bg-gray-950
-        border-r border-gray-200 dark:border-gray-800
-        flex flex-col
-        transition-all duration-300
-      `}
+      className={`${
+        isCollapsed ? 'w-16' : 'w-64'
+      } bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-all duration-300 relative`}
     >
       <div className="p-4 flex-1 flex flex-col gap-2">
         <button 
