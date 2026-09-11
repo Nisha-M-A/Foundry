@@ -1,506 +1,516 @@
-# Foundry — AI Product Blueprint Workspace
+  ✦ Foundry
 
-> **Turn a product idea into a structured software blueprint using a team of specialized AI agents.**
+<p align="center"> <img src="https://img.shields.io/badge/ ✦-Foundry-7c3aed?style=for-the-badge" alt="Foundry"/> </p>
 
-Foundry is an AI-powered product planning workspace that transforms a natural-language product idea into a structured software blueprint.
+<h2 align="center">AI Product Planning Workspace</h2>
 
-Instead of relying on a single AI response, Foundry uses four specialized AI agents — **Product Manager, System Architect, Backend Engineer, and UI Designer** — to analyze the same product idea from different engineering perspectives and produce structured, visualizable outputs.
+<p align="center"> <em>Transforming raw software ideas into structured, evolving product blueprints using a team of specialized AI agents.</em> </p>
 
-Foundry also supports **iterative blueprint evolution**, allowing users to add features to an existing project while preserving the previous blueprint, export the generated blueprint, and recover from failed AI generations through retry functionality.
+<p align="center"> <a href="https://foundry-rose.vercel.app/"> <img src="https://img.shields.io/badge/🚀%20LIVE%20DEMO-Foundry-22c55e?style=for-the-badge" alt="Live Demo"/> </a> <a href="https://github.com/Nisha-M-A/Foundry"> <img src="https://img.shields.io/badge/💻%20GITHUB-Repository-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/> </a> </p>
 
----
+<p align="center"> <img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React"/> <img src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite"/> <img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js"/> <img src="https://img.shields.io/badge/Express.js-000000?style=flat-square&logo=express&logoColor=white" alt="Express"/> <img src="https://img.shields.io/badge/MongoDB%20Atlas-47A248?style=flat-square&logo=mongodb&logoColor=white" alt="MongoDB"/> <img src="https://img.shields.io/badge/Gemini%20API-4285F4?style=flat-square&logo=google&logoColor=white" alt="Gemini"/> <img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker"/> <img src="https://img.shields.io/badge/Tailwind%20CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS"/> </p>
 
-## ✨ Features
+## What is Foundry?
 
-### 🤖 Multi-Agent Product Planning
+Turning a product idea into software usually means jumping between product requirements, system architecture, backend design, database planning, and UI design.
 
-Foundry divides product planning across four specialized AI agents:
+**Foundry brings that planning process into one workspace.**
 
-* **Product Manager** — product vision, target users, requirements, user stories, and feature planning.
-* **System Architect** — system components, architecture, services, databases, and connections.
-* **Backend Engineer** — backend workflows, APIs, data processing, and implementation logic.
-* **UI Designer** — screens, user flows, interface structure, and interaction design.
+Give Foundry a product idea and its AI team generates:
 
-Each agent generates structured output tailored to its role rather than returning a generic AI response.
+| AI Agent                 | Responsibility                                                 |
+| ------------------------ | -------------------------------------------------------------- |
+| 🧠 **Product Manager**   | Product vision, goals, features, requirements and scope        |
+| 🏗️ **System Architect** | System components, architecture and service relationships      |
+| ⚙️ **Backend Engineer**  | APIs, backend services, data flow and implementation structure |
+| 🎨 **UI Designer**       | Screens, user flows and interface structure                    |
 
-### 📊 Structured Visual Blueprints
+The result isn't just AI-generated text.
 
-Generated agent responses are transformed into dedicated visual representations:
-
-* Product Manager → Product Mind Map
-* System Architect → Architecture Diagram
-* Backend Engineer → Backend Flowchart
-* UI Designer → UI Wireframe
-
-Dedicated blueprint routes allow users to inspect each agent's output independently.
-
-### 🔄 Iterative Blueprint Evolution
-
-Foundry supports incremental product development through versioned blueprints.
-
-Users can:
-
-1. Generate an initial **V1** blueprint.
-2. Add a new feature.
-3. Generate the next version while retaining the existing product context.
-4. Continue evolving the blueprint across multiple versions.
-
-This allows the blueprint to represent **V1 → V2 → V3 → V4** product evolution rather than generating disconnected plans for every feature.
-
-### 📄 Blueprint Export
-
-Generated blueprints can be exported into a professionally structured document containing the product information and the outputs from the four AI agents.
-
-### 🛡️ Validation & Error Handling
-
-AI-generated structured responses are validated before being used by the application.
-
-If an individual agent fails during generation, Foundry:
-
-* Records the agent failure.
-* Displays a user-friendly error state.
-* Allows the user to retry failed agents without recreating the project.
-
-### 🔁 Failed-Agent Retry
-
-Failed generations can be retried directly from the project workspace.
-
-The retry workflow allows Foundry to recover from temporary external AI failures such as API availability or quota-related errors without requiring the user to restart the entire project.
-
-### 🐳 Dockerized Development
-
-Foundry is containerized using Docker Compose to provide a reproducible development environment.
-
-The application runs as separate client and server services, while the backend connects to MongoDB for project persistence.
+Foundry converts the agents' outputs into **structured, visual blueprints** that can be explored, evolved and exported.
 
 ---
 
-## 🏗️ Architecture
+# 🚀 The Core Idea
 
-At a high level, Foundry follows a client-server architecture:
+### **Don't just generate a project. Evolve it.**
 
-```text
-                    ┌─────────────────────┐
-                    │       User          │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │   React Frontend    │
-                    │   Vite + Tailwind   │
-                    └──────────┬──────────┘
-                               │ REST API
-                               ▼
-                    ┌─────────────────────┐
-                    │   Node.js Backend   │
-                    │      Express        │
-                    └──────┬──────┬───────┘
-                           │      │
-                ┌──────────┘      └──────────┐
-                ▼                             ▼
-       ┌────────────────┐             ┌────────────────┐
-       │    MongoDB     │             │   Gemini API   │
-       │   Persistence  │             │  AI Generation │
-       └────────────────┘             └───────┬────────┘
-                                             │
-                     ┌───────────────────────┼──────────────────────┐
-                     ▼                       ▼                      ▼
-              Product Manager       System Architect        Backend Engineer
-                     │                       │                      │
-                     └───────────────────────┼──────────────────────┘
-                                             ▼
-                                      UI Designer
-```
+Foundry is designed around **versioned product evolution**.
 
-### Agent Workflow
-
-```text
-Product Idea
-     │
-     ▼
-Create Project
-     │
-     ▼
-┌───────────────────────────────────────────────┐
-│              AI Agent Team                    │
-│                                               │
-│  Product Manager                              │
-│  System Architect                             │
-│  Backend Engineer                             │
-│  UI Designer                                  │
-└───────────────────────┬───────────────────────┘
-                        │
-                        ▼
-              Structured AI Outputs
-                        │
-          ┌─────────────┼─────────────┐
-          ▼             ▼             ▼
-      Product       Architecture    Backend
-      Blueprint       Blueprint     Blueprint
-                        │
-                        ▼
-                  UI Blueprint
-                        │
-                        ▼
-                Unified Project
-                        │
-                        ▼
-              Versioned Blueprint
-```
-
----
-
-## 🔄 Version Evolution
-
-Foundry's versioning workflow is designed around incremental changes.
+Start with an initial idea:
 
 ```text
 V1
 │
-├── Original product idea
-├── Product strategy
-├── System architecture
-├── Backend workflow
-└── UI structure
-        │
-        │ Add Feature
-        ▼
-V2
-│
-├── Existing V1 blueprint
-└── New feature changes
-        │
-        │ Add Feature
-        ▼
-V3
-│
-├── Existing V2 blueprint
-└── Additional feature changes
-        │
-        ▼
-V4
-└── Further product evolution
+├── Product Blueprint
+├── Architecture Blueprint
+├── Backend Blueprint
+└── UI Blueprint
 ```
 
-The goal is to preserve the existing blueprint while incorporating the newly requested functionality.
+Then add a new feature:
+
+```text
+V1
+ ↓
+Add Feature
+ ↓
+V2
+```
+
+Foundry uses the existing blueprint as context and generates an updated version while preserving the existing system and integrating the new capability.
+
+This makes the workflow closer to how real software products evolve:
+
+> **Build → Change → Extend → Repeat**
 
 ---
 
-## 🧰 Tech Stack
+# 🧩 How Foundry Works
+
+```text
+                     ┌──────────────────┐
+                     │   Product Idea   │
+                     └────────┬─────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │    Foundry AI Team  │
+                    └──────────┬──────────┘
+                               │
+             ┌─────────────────┼─────────────────┐
+             │                 │                 │
+             ▼                 ▼                 ▼
+       Product Manager   System Architect   Backend Engineer
+             │                 │                 │
+             └─────────────────┬─────────────────┘
+                               │
+                               ▼
+                         UI Designer
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ Structured Blueprint│
+                    └──────────┬──────────┘
+                               │
+                ┌──────────────┼──────────────┐
+                ▼              ▼              ▼
+             Product       Architecture       Backend
+                │              │              │
+                └──────────────┼──────────────┘
+                               ▼
+                              UI
+                               │
+                               ▼
+                        Version History
+                               │
+                         Add Feature
+                               │
+                               ▼
+                          V2 → V3 → V4
+```
+
+---
+
+# 🤖 Multi-Agent AI System
+
+Foundry uses **role-specialized AI agents** instead of treating the entire planning process as a single prompt.
+
+### 🧠 Product Manager
+
+Defines the **what and why**.
+
+Produces structured product planning including:
+
+* Product vision
+* Objectives
+* Core features
+* Functional requirements
+* Scope
+* User-facing capabilities
+
+### 🏗️ System Architect
+
+Defines **how the system fits together**.
+
+Produces:
+
+* System components
+* Services
+* Databases
+* External systems
+* Component relationships
+* Architecture connections
+
+### ⚙️ Backend Engineer
+
+Defines **how the backend behaves**.
+
+Produces:
+
+* API structure
+* Backend services
+* Data operations
+* Processing logic
+* Service relationships
+
+### 🎨 UI Designer
+
+Defines **how users interact with the product**.
+
+Produces:
+
+* Screens
+* UI sections
+* User flows
+* Navigation
+* Screen relationships
+
+---
+
+# 📊 Structured Visual Blueprints
+
+Foundry doesn't stop at generating responses.
+
+Each agent's output is transformed into a dedicated visual blueprint.
+
+### Product Blueprint
+
+Structured product requirements and feature planning.
+
+### Architecture Blueprint
+
+Visual representation of:
+
+```text
+Components
+   ↓
+Relationships
+   ↓
+System Architecture
+```
+
+### Backend Blueprint
+
+Visual representation of backend services, APIs and data flow.
+
+### UI Blueprint
+
+Visual representation of screens and user navigation.
+
+Dedicated blueprint routes make each area independently explorable:
+
+```text
+/projects/:projectId/blueprint/product
+/projects/:projectId/blueprint/architecture
+/projects/:projectId/blueprint/backend
+/projects/:projectId/blueprint/ui
+```
+
+---
+
+# 🔄 Versioned Blueprint Evolution
+
+One of Foundry's core capabilities is **incremental blueprint evolution**.
+
+Example:
+
+### V1
+
+```text
+Smart Campus Navigator
+
+Map
+Search
+Route Planning
+Building Information
+Accessibility
+Admin Dashboard
+```
+
+### Add Feature
+
+```text
+"Add real-time campus occupancy."
+```
+
+### V2
+
+```text
+Smart Campus Navigator
+
+Existing Features
+       +
+Real-Time Occupancy
+       +
+Occupancy Management
+       +
+Real-Time Data Flow
+```
+
+The important part is that **V2 builds on V1 instead of simply replacing it.**
+
+---
+
+# 🛡️ Reliability & Failure Handling
+
+AI systems don't always succeed.
+
+Foundry treats that as an engineering problem rather than assuming generation will always work.
+
+### Agent-level status
+
+Each agent can independently reach states such as:
+
+```text
+Generating
+   ↓
+Completed
+
+or
+
+Generating
+   ↓
+Error
+   ↓
+Retry
+```
+
+Failed agents can be retried without forcing the user to restart the entire project workflow.
+
+Foundry also handles cases where an agent has no valid saved response, allowing the rest of the workspace to remain usable.
+
+---
+
+# 📚 Project History
+
+Foundry maintains project versions so users can track how their product blueprint evolves over time.
+
+Users can:
+
+* View previous versions
+* Switch between blueprint generations
+* Search project history
+* Compare how a project evolved through feature additions
+
+---
+
+# 📄 Export
+
+Generated blueprints can be exported into a structured document format suitable for sharing and documentation.
+
+The goal is to turn the AI-generated planning process into something that can actually leave the application and become part of a project's documentation.
+
+---
+
+# 🐳 Dockerized Development
+
+Foundry is containerized using Docker Compose.
+
+The development environment includes:
+
+```text
+┌───────────────┐
+│ React + Vite  │
+│   Client      │
+│    :5173      │
+└───────┬───────┘
+        │
+        ▼
+┌───────────────┐
+│ Node + Express│
+│    Server     │
+│    :5000      │
+└───────┬───────┘
+        │
+        ├──────────────► MongoDB Atlas
+        │
+        └──────────────► Gemini API
+```
+
+Start the complete application with:
+
+```bash
+docker compose up -d --build
+```
+
+Check running services:
+
+```bash
+docker compose ps
+```
+
+Stop the environment:
+
+```bash
+docker compose down
+```
+
+---
+
+# 🧰 Tech Stack
 
 ### Frontend
 
 * React
 * Vite
 * Tailwind CSS
-* JavaScript / JSX
-* Lucide React / React Icons
 
 ### Backend
 
 * Node.js
 * Express.js
-* REST APIs
+
+### Database
+
+* MongoDB Atlas
 
 ### AI
 
 * Google Gemini API
-* Specialized prompts for each AI agent
-* Structured AI-generated responses
-* Zod-based schema validation
 
-### Database
-
-* MongoDB
-* Mongoose
-
-### Authentication & Security
+### Authentication
 
 * JWT
 * bcryptjs
 
-### DevOps
+### Infrastructure
 
 * Docker
 * Docker Compose
 
 ### Deployment
 
-* Vercel
-* Render
+* Vercel — Frontend
+* Render — Backend
 
-### Development Tools
+### Development
 
 * Git
 * GitHub
-* VS Code
 
 ---
 
-## 📁 Project Structure
+# 🏗️ Architecture Overview
 
 ```text
-foundry/
-│
-├── client/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── api/
-│   │   └── utils/
-│   ├── Dockerfile
-│   └── package.json
-│
-├── server/
-│   ├── controllers/
-│   ├── routes/
-│   ├── schemas/
-│   ├── services/
-│   ├── prompts/
-│   ├── models/
-│   ├── middleware/
-│   ├── Dockerfile
-│   └── package.json
-│
-├── docker-compose.yml
-├── .gitignore
-└── README.md
+                    ┌─────────────────┐
+                    │      User       │
+                    └────────┬────────┘
+                             │
+                             ▼
+                    ┌─────────────────┐
+                    │ React Frontend  │
+                    │  Vite + Tailwind│
+                    └────────┬────────┘
+                             │ REST API
+                             ▼
+                    ┌─────────────────┐
+                    │ Express Backend │
+                    │     Node.js     │
+                    └───────┬─────────┘
+                            │
+              ┌─────────────┼─────────────┐
+              │             │             │
+              ▼             ▼             ▼
+          MongoDB        Gemini API    Auth Layer
+           Atlas                         JWT
+              │
+              ▼
+        Project Versions
+              │
+              ▼
+       Blueprint Data
 ```
 
 ---
 
-## 🚀 Getting Started
+# 🌐 Deployment
 
-### Prerequisites
-
-Make sure the following are installed:
-
-* Node.js
-* npm
-* Git
-* Docker Desktop
-
-You will also need:
-
-* A MongoDB database
-* A Google Gemini API key
-
----
-
-## ⚙️ Environment Variables
-
-Create the required environment files according to the existing project configuration.
-
-### Client
-
-```env
-VITE_API_URL=http://localhost:5000/api
-```
-
-### Server
-
-Configure the server-side environment variables for:
-
-```env
-MONGODB_URI=your_mongodb_connection_string
-GEMINI_API_KEY=your_gemini_api_key
-JWT_SECRET=your_jwt_secret
-```
-
-> **Never commit real API keys, database credentials, or JWT secrets to GitHub.**
-
-If the repository's current environment variable names differ, use the names defined in the project configuration rather than copying these examples blindly.
-
----
-
-## 🐳 Running with Docker
-
-From the project root:
-
-```bash
-docker compose up -d
-```
-
-Check running containers:
-
-```bash
-docker compose ps
-```
-
-View server logs:
-
-```bash
-docker compose logs server --tail=50
-```
-
-View client logs:
-
-```bash
-docker compose logs client --tail=50
-```
-
-The default development setup exposes:
+Foundry is deployed as a full-stack application:
 
 ```text
-Frontend → http://localhost:5173
-Backend  → http://localhost:5000
+                 INTERNET
+                    │
+          ┌─────────┴─────────┐
+          ▼                   ▼
+     Vercel              Render
+    Frontend             Backend
+       │                    │
+       └──────── REST ──────┘
+                            │
+                    ┌───────┴───────┐
+                    ▼               ▼
+                MongoDB          Gemini
+                  Atlas            API
 ```
 
-To stop the containers:
+### Live Application
 
-```bash
-docker compose down
-```
-
-To rebuild after code changes:
-
-```bash
-docker compose down
-docker compose up -d --build
-```
+**https://foundry-rose.vercel.app/**
 
 ---
 
-## 💻 Running Without Docker
+# 🎯 Why I Built Foundry
 
-### 1. Clone the repository
+Foundry was built around a simple question:
 
-```bash
-git clone <YOUR_REPOSITORY_URL>
-cd foundry
-```
+> **What if an AI could act less like a chatbot and more like an engineering team?**
 
-### 2. Install frontend dependencies
+The project explores how specialized AI agents can collaborate to transform an ambiguous software idea into structured engineering artifacts.
 
-```bash
-cd client
-npm install
-```
-
-### 3. Install backend dependencies
-
-Open another terminal:
-
-```bash
-cd server
-npm install
-```
-
-### 4. Configure environment variables
-
-Create the required `.env` files and add your local configuration.
-
-### 5. Start the backend
-
-```bash
-cd server
-npm run dev
-```
-
-### 6. Start the frontend
-
-```bash
-cd client
-npm run dev
-```
-
-Then open:
-
-```text
-http://localhost:5173
-```
+More importantly, it explores what happens **after the first generation** — how AI-generated systems can evolve when requirements change.
 
 ---
 
-## 🧪 Validation
+# 🧪 What I Learned
 
-The project includes validation and build checks for the frontend.
+Building Foundry involved more than connecting an LLM API.
 
-Example:
+Key engineering challenges included:
 
-```bash
-cd client
-npm run lint
-npm run build
-```
-
-These checks help catch syntax, linting, and production-build issues before deployment.
-
----
-
-## 🔐 Security Notes
-
-Foundry relies on external services for AI generation and database persistence.
-
-Before deploying:
-
-* Keep API keys in environment variables.
-* Do not commit `.env` files containing secrets.
-* Use a strong JWT secret.
-* Restrict database access appropriately.
-* Configure production environment variables separately from local development.
+* Designing structured multi-agent outputs
+* Handling unreliable AI generation
+* Validating generated data
+* Preserving previous blueprint versions
+* Evolving existing architecture when features are added
+* Handling failed agents independently
+* Building visual representations from structured AI output
+* Designing retry and recovery workflows
+* Dockerizing a full-stack application
+* Connecting independently deployed frontend and backend services
+* Debugging production CORS and SPA routing issues
+* Maintaining repository security while preparing the project for public release
 
 ---
 
-## 🎯 Project Highlights
+# 🔮 Future Direction
 
-Foundry demonstrates several practical AI engineering concepts:
+Foundry's current MVP focuses on turning ideas into structured product blueprints and evolving them through versions.
 
-* Multi-agent AI architecture
-* Role-specific LLM prompting
-* Structured AI outputs
-* Schema validation
-* AI-generated visual representations
-* Incremental product blueprint versioning
-* Feature-driven blueprint evolution
-* API-based AI integration
-* Failure handling and retry mechanisms
-* MongoDB persistence
-* JWT authentication
-* Docker containerization
-* Docker Compose orchestration
-* Cloud deployment
+The architecture leaves room for future capabilities such as deeper engineering analysis, richer blueprint evaluation and additional AI-assisted development workflows.
+
+**The current product scope remains intentionally focused.**
 
 ---
 
-## 📌 Current Status
-
-**Foundry is feature-complete and deployed.**
-
-The current implementation includes:
-
-* Multi-agent blueprint generation
-* Four specialized AI agents
-* Structured blueprint visualization
-* Versioned product evolution
-* Add Feature workflow
-* Blueprint export
-* Error handling
-* Failed-agent retry
-* History and project search
-* Dockerized development
-* Cloud deployment
-
----
-
-## 👩‍💻 Author
+# 👩‍💻 Built By
 
 **Nisha M. A.**
 
-Computer Science & Engineering Undergraduate
+Computer Science Engineering Undergraduate
+SDM College of Engineering & Technology
 
-* GitHub: https://github.com/Nisha-M-A
-* LinkedIn: https://www.linkedin.com/in/nisha26/
-* Portfolio: https://portfolio-nine-virid-11.vercel.app/
+[GitHub](https://github.com/Nisha-M-A)
+
+[LinkedIn](https://www.linkedin.com/in/nisha26/)
 
 ---
 
-## ⭐ Why Foundry?
+## ⭐ If you find Foundry interesting
 
-Traditional AI product planning often produces a single large response that mixes product requirements, architecture, backend logic, and UI decisions.
+Feel free to explore the repository, try the deployed application, or use the project as inspiration for building AI-assisted engineering workflows.
 
-Foundry approaches the problem differently:
+**From idea to blueprint. From blueprint to evolution.**
 
-> **One product idea → four specialized perspectives → structured blueprints → iterative evolution.**
-
-The result is a more organized way to move from **idea → software blueprint → evolving product plan**.
+#  ✦ Foundry
